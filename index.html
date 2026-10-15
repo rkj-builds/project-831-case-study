@@ -2,600 +2,515 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Project 831, a booking engine</title>
-<meta name="description" content="A two-court venue booked over WhatsApp and the web by one engine. Built on the side by Rahul Jha, who also runs it.">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Project 831</title>
+<meta name="description" content="A booking and operations system for a pickleball venue in Jamshedpur, built on the side by Rahul Jha. Customers book inside WhatsApp; a kids' programme runs itself.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,500..800&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* ── Tokens: lifted from project-831-bot/src/design-v2.css ─────────── */
-:root, [data-theme="dark"] {
-  --bg:#0c0a09; --surface:#15110e; --surface2:#1a1613; --surface3:#1c1815; --card-2:#141110;
-  --border:rgba(255,255,255,.08); --line-soft:rgba(255,255,255,.06); --line-strong:rgba(255,255,255,.11);
-  --fill-1:rgba(255,255,255,.03); --fill-2:rgba(255,255,255,.04); --fill-active:rgba(255,255,255,.09);
-  --stripe:repeating-linear-gradient(135deg,rgba(255,255,255,.14) 0 5px,rgba(255,255,255,0) 5px 10px);
-  --accent:#e07f3c; --accent-text:#f4b06a; --accent-dim:rgba(224,127,60,.14); --on-accent:#1a1105;
-  --green:#4ade80; --green-dim:rgba(74,222,128,.13); --green-text:#a7e8c0;
-  --amber:#facc15; --amber-dim:rgba(250,204,21,.13);
-  --red:#f0607a; --red-dim:rgba(240,96,122,.13); --red-text:#e0c3c8;
-  --mship:#d59bd8; --brand-whatsapp:#25D366;
-  --text:#f0ebe4; --text-2:#c9c0b6; --text-muted:#a89e93; --text-dim:#8a7f75;
-  --desk:#5a4f46;
-  --shadow:0 18px 50px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06);
-  color-scheme:dark;
-}
-[data-theme="light"] {
-  --bg:#f7f4ef; --surface:#ffffff; --surface2:#fbf8f3; --surface3:#ffffff; --card-2:#f3efe8;
-  --border:rgba(30,24,19,.11); --line-soft:rgba(30,24,19,.08); --line-strong:rgba(30,24,19,.16);
-  --fill-1:rgba(30,24,19,.03); --fill-2:rgba(30,24,19,.05); --fill-active:rgba(30,24,19,.09);
-  --stripe:repeating-linear-gradient(135deg,rgba(30,24,19,.14) 0 5px,rgba(30,24,19,0) 5px 10px);
-  --accent:#d1701f; --accent-text:#b45f16; --accent-dim:rgba(209,112,31,.12); --on-accent:#1a1105;
-  --green:#17864a; --green-dim:rgba(23,134,74,.12); --green-text:#0f6135;
-  --amber:#b8860b; --amber-dim:rgba(184,134,11,.13);
-  --red:#cf3552; --red-dim:rgba(207,53,82,.10); --red-text:#7d2135;
-  --mship:#9c4fa1; --brand-whatsapp:#1da851;
-  --text:#1e1813; --text-2:#4a4139; --text-muted:#6d635a; --text-dim:#7d7369;
-  --desk:#c9bfb3;
-  --shadow:0 18px 50px rgba(30,24,19,.16), 0 0 0 1px rgba(30,24,19,.08);
+/* Layout: one 680px reading column; figures break out to 1180px. Phones sit in a horizontal journey rail.
+   Colour comes from the venue's own world: court-line chalk paper, the 831 logo's red-orange, WhatsApp green only on chat things. */
+:root{
+  --paper:#f2f3ef;  --sheet:#ffffff; --ink:#14181a; --ink-2:#3d4549; --ink-3:#6b7479;
+  --rule:#d9ddd6;   --rule-2:#e8eae5;
+  --ember:#c8461c;  --ember-ink:#a83a15; --ember-wash:#f7e3da;
+  --chat:#1f9d55;   --chat-wash:#dff1e6;
+  --desk:#b9c0bb;   --night:#e4e7e1;
+  --shadow:0 1px 0 rgba(20,24,26,.04), 0 18px 40px -18px rgba(20,24,26,.28);
+  --fd:'Bricolage Grotesque', 'Helvetica Neue', Arial, sans-serif;
+  --fb:'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --fm:'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --col:680px; --wide:1180px; --gut:clamp(16px,4vw,40px);
   color-scheme:light;
 }
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    --bg:#f7f4ef; --surface:#ffffff; --surface2:#fbf8f3; --surface3:#ffffff; --card-2:#f3efe8;
-    --border:rgba(30,24,19,.11); --line-soft:rgba(30,24,19,.08); --line-strong:rgba(30,24,19,.16);
-    --fill-1:rgba(30,24,19,.03); --fill-2:rgba(30,24,19,.05); --fill-active:rgba(30,24,19,.09);
-    --stripe:repeating-linear-gradient(135deg,rgba(30,24,19,.14) 0 5px,rgba(30,24,19,0) 5px 10px);
-    --accent:#d1701f; --accent-text:#b45f16; --accent-dim:rgba(209,112,31,.12); --on-accent:#1a1105;
-    --green:#17864a; --green-dim:rgba(23,134,74,.12); --green-text:#0f6135;
-    --amber:#b8860b; --amber-dim:rgba(184,134,11,.13);
-    --red:#cf3552; --red-dim:rgba(207,53,82,.10); --red-text:#7d2135;
-    --mship:#9c4fa1; --brand-whatsapp:#1da851;
-    --text:#1e1813; --text-2:#4a4139; --text-muted:#6d635a; --text-dim:#7d7369;
-    --desk:#c9bfb3;
-    --shadow:0 18px 50px rgba(30,24,19,.16), 0 0 0 1px rgba(30,24,19,.08);
-    color-scheme:light;
-  }
-}
-:root {
-  --fd:'Fraunces', Georgia, serif;
-  --fb:'DM Sans', system-ui, -apple-system, sans-serif;
-  --fm:'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  --gutter:clamp(16px, 4vw, 48px);
-  --text-w:1040px; --fig-w:1280px;
-  --gap:clamp(56px, 9vw, 112px);
-  --t:180ms cubic-bezier(.2,.7,.2,1);
-}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --paper:#0f1312; --sheet:#171c1b; --ink:#eef1ec; --ink-2:#c3cac5; --ink-3:#8e9893;
+  --rule:#2a312f; --rule-2:#202625;
+  --ember:#ec6a3d; --ember-ink:#f28a63; --ember-wash:#33201a;
+  --chat:#3ec777; --chat-wash:#16291f;
+  --desk:#4a5450; --night:#1b2120;
+  --shadow:0 1px 0 rgba(0,0,0,.3), 0 18px 40px -18px rgba(0,0,0,.7);
+  color-scheme:dark; } }
+:root[data-theme="dark"]{
+  --paper:#0f1312; --sheet:#171c1b; --ink:#eef1ec; --ink-2:#c3cac5; --ink-3:#8e9893;
+  --rule:#2a312f; --rule-2:#202625;
+  --ember:#ec6a3d; --ember-ink:#f28a63; --ember-wash:#33201a;
+  --chat:#3ec777; --chat-wash:#16291f;
+  --desk:#4a5450; --night:#1b2120;
+  --shadow:0 1px 0 rgba(0,0,0,.3), 0 18px 40px -18px rgba(0,0,0,.7);
+  color-scheme:dark; }
+
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;overflow-x:hidden;background:var(--bg);color:var(--text);font:400 17px/1.5 var(--fb);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
-a{color:var(--accent-text);text-decoration:none;border-bottom:1px solid transparent;transition:border-color var(--t)}
-a:hover,a:focus-visible{border-bottom-color:currentColor}
-:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
-.wrap{width:min(100% - 2*var(--gutter), var(--text-w));margin-inline:auto}
-.wrap-fig{width:min(100% - 2*var(--gutter), var(--fig-w));margin-inline:auto}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 17px/1.6 var(--fb);-webkit-font-smoothing:antialiased;padding-inline:var(--gut)}
+img{max-width:100%;height:auto;display:block}
+a{color:var(--ember-ink);text-underline-offset:3px;text-decoration-thickness:1px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--ember);outline-offset:3px;border-radius:4px}
+.col{max-width:var(--col);margin-inline:auto}
+.wide{max-width:var(--wide);margin-inline:auto}
 .mono{font-family:var(--fm);font-variant-numeric:tabular-nums}
-.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.small{font-size:14px;color:var(--text-muted)}
 
-/* ── Top bar ────────────────────────────────────────────────── */
-.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;padding:14px var(--gutter);background:color-mix(in srgb, var(--bg) 86%, transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line-soft)}
-.brand{font:600 20px/1 var(--fd);letter-spacing:-.01em}
-.brand b{color:var(--accent)}
-.toggle{display:inline-flex;gap:2px;padding:3px;border:1px solid var(--border);border-radius:999px;background:var(--surface)}
-.toggle button{font:500 12px/1 var(--fb);padding:7px 11px;border:0;border-radius:999px;background:transparent;color:var(--text-muted);cursor:pointer;transition:background var(--t),color var(--t)}
-.toggle button[aria-pressed="true"]{background:var(--fill-active);color:var(--text)}
+/* Type scale: 13 / 15 / 17 / 22 / 34 / clamp hero */
+h1,h2,h3{font-family:var(--fd);font-weight:700;letter-spacing:-.025em;text-wrap:balance;margin:0}
+h1{font-size:clamp(46px,8vw,96px);line-height:.92;font-stretch:80%;font-weight:800}
+h2{font-size:clamp(28px,3.6vw,38px);line-height:1.05;font-stretch:88%}
+h3{font-size:19px;line-height:1.25;letter-spacing:-.01em;font-weight:650}
+p{margin:0;color:var(--ink-2)}
+p strong{color:var(--ink);font-weight:600}
+.lede{font-size:clamp(18px,2vw,21px);line-height:1.5;color:var(--ink)}
+.tag{font:500 12px/1 var(--fm);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.tag b{color:var(--ember-ink);font-weight:500}
+.note{font-size:14px;color:var(--ink-3);line-height:1.5}
 
-/* ── Sections ───────────────────────────────────────────────── */
-section{padding-block:var(--gap)}
-section + section{border-top:1px solid var(--line-soft)}
-.k{font:500 12px/1 var(--fm);letter-spacing:.14em;text-transform:uppercase;color:var(--accent-text);margin:0 0 14px}
-h1,h2{font-family:var(--fd);font-weight:500;letter-spacing:-.02em;margin:0 0 18px;text-wrap:balance}
-h1{font-size:clamp(34px, 5.4vw, 60px);line-height:1.02}
-h2{font-size:clamp(26px, 3.4vw, 40px);line-height:1.1}
-p{margin:0 0 10px;max-width:62ch;color:var(--text-2)}
-p strong{color:var(--text);font-weight:500}
-figure{margin:34px 0 0}
-figcaption{margin-top:14px;font-size:14px;color:var(--text-muted)}
-.lede p{font-size:clamp(18px,2vw,21px);color:var(--text)}
+/* Top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;margin-inline:calc(-1*var(--gut));padding:12px var(--gut);display:flex;justify-content:space-between;align-items:center;gap:16px;background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--rule-2)}
+.top nav{display:flex;gap:18px;overflow-x:auto;scrollbar-width:none;font-size:14px}
+.top nav a{color:var(--ink-3);text-decoration:none;white-space:nowrap}
+.top nav a:hover{color:var(--ink)}
+.mark{font:800 18px/1 var(--fd);letter-spacing:-.03em;white-space:nowrap;color:var(--ink);text-decoration:none}
+.mark span{color:var(--ember)}
+.theme{display:flex;border:1px solid var(--rule);border-radius:999px;padding:2px;flex:none}
+.theme button{font:500 12px/1 var(--fb);color:var(--ink-3);background:none;border:0;padding:6px 10px;border-radius:999px;cursor:pointer}
+.theme button[aria-pressed="true"]{background:var(--rule-2);color:var(--ink)}
+@media (max-width:760px){.top nav{display:none}}
 
-/* Stat tiles */
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:44px;border-top:1px solid var(--line-soft)}
-.stat{padding:26px 22px 24px 0;border-right:1px solid var(--line-soft)}
-.stat:last-child{border-right:0}
-.stat + .stat{padding-left:22px}
-.stat,.flow>*,.themes>*,.tiles>*,.repo>*{min-width:0}
-.stat .n{font:600 clamp(40px,5vw,64px)/1 var(--fm);letter-spacing:-.03em;color:var(--text)}
-.stat .n .arrow{color:var(--text-dim);font-weight:500;font-size:.55em;margin:0 .1em}
-.stat .l{margin-top:10px;font-size:14px;color:var(--text-muted);max-width:18ch}
-@media (max-width:720px){.stats{grid-template-columns:1fr 1fr}.stat .n{font-size:34px}.stat{padding:20px 14px 18px 0}.stat:nth-child(2n){border-right:0}.stat:nth-child(n+3){border-top:1px solid var(--line-soft)}.stat:nth-child(3){padding-left:0}}
+/* Sections */
+section{padding-block:clamp(56px,9vw,104px);border-top:1px solid var(--rule)}
+.head{display:grid;gap:14px}
+.head p{max-width:60ch}
+.stack{display:grid;gap:36px}
+
+/* Hero */
+.hero{padding-block:clamp(40px,7vw,80px) clamp(48px,7vw,88px);border-top:0}
+.hero .intro{display:grid;gap:22px;max-width:760px}
+.hero h1 em{font-style:normal;color:var(--ember)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--ink);margin-top:44px}
+.stat{padding:16px 18px 4px 0;display:grid;gap:6px;align-content:start;min-width:0}
+.stat + .stat{padding-left:18px;border-left:1px solid var(--rule)}
+.stat b{font:700 clamp(30px,4vw,44px)/1 var(--fd);letter-spacing:-.03em;font-stretch:85%}
+.stat span{font-size:14px;color:var(--ink-3);line-height:1.4}
+@media (max-width:720px){.stats{grid-template-columns:1fr 1fr}.stat:nth-child(3){padding-left:0;border-left:0}.stat:nth-child(n+3){border-top:1px solid var(--rule);padding-top:16px}}
+
+/* Phone journey rail */
+.rail{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(200px,1fr);gap:18px;overflow-x:auto;padding:6px 2px 18px;scroll-snap-type:x mandatory}
+.rail figure{margin:0;display:grid;gap:12px;scroll-snap-align:start;min-width:0}
+.phone{border-radius:28px;overflow:hidden;background:#000;box-shadow:var(--shadow);aspect-ratio:690/1495;border:1px solid var(--rule)}
+.phone img{width:100%;height:100%;object-fit:cover}
+.rail figcaption{display:grid;gap:3px;font-size:14px;line-height:1.4;color:var(--ink-2)}
+.rail figcaption .mono{font-size:12px;color:var(--chat)}
+@media (max-width:900px){.rail{grid-auto-columns:62%}}
+
+/* Shots */
+.shot{margin:0;display:grid;gap:12px}
+.frame{border-radius:14px;overflow:hidden;border:1px solid var(--rule);box-shadow:var(--shadow);background:#0c0a09}
+.shot figcaption{font-size:14px;color:var(--ink-3);line-height:1.5;max-width:72ch}
+.shot figcaption b{color:var(--ink-2);font-weight:600}
+.mock{display:inline-block;font:500 11px/1 var(--fm);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);border:1px dashed var(--rule);padding:3px 6px;border-radius:4px;margin-right:8px;vertical-align:1px}
+
+/* Fact grids */
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--rule)}
+.fact{padding:18px 20px 20px 0;display:grid;gap:6px;align-content:start;border-bottom:1px solid var(--rule);min-width:0}
+.fact:not(:nth-child(3n+1)){padding-left:20px;border-left:1px solid var(--rule)}
+.facts.two{grid-template-columns:1fr 1fr}
+.fact p{font-size:15px;line-height:1.55}
+.fact .k{font:500 12px/1.2 var(--fm);color:var(--ember-ink);letter-spacing:.04em}
+@media (max-width:860px){.facts{grid-template-columns:1fr 1fr}.fact:not(:nth-child(3n+1)){padding-left:0;border-left:0}.fact:nth-child(2n){padding-left:20px;border-left:1px solid var(--rule)}}
+@media (max-width:560px){.facts,.facts.two{grid-template-columns:1fr}.fact:nth-child(2n){padding-left:0;border-left:0}}
+
+.two{display:grid;grid-template-columns:1.35fr 1fr;gap:clamp(24px,4vw,48px);align-items:start}
+.two > *{min-width:0}
+@media (max-width:900px){.two{grid-template-columns:1fr}}
 
 /* Charts */
-svg{display:block;width:100%;height:auto;overflow:visible}
-svg text{font-family:var(--fm);font-size:12px;fill:var(--text-muted);font-weight:500}
-.legend{display:flex;flex-wrap:wrap;gap:18px;margin-top:16px;font-size:13px;color:var(--text-muted)}
-.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:7px}
-.bar{transform-box:fill-box;transform-origin:bottom;transition:transform 700ms cubic-bezier(.2,.7,.2,1)}
-.pre .bar{transform:scaleY(.001)}
-@media (prefers-reduced-motion: reduce){.bar{transition:none}.pre .bar{transform:none}}
+.chart{margin:0;display:grid;gap:10px}
+.chart svg{width:100%;height:auto;display:block;overflow:visible}
+.chart text{font-family:var(--fm);font-size:12px;fill:var(--ink-3)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:var(--ink-3)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:0}
 
-/* Screenshot frame */
-.shot{position:relative;border-radius:14px;overflow:hidden;box-shadow:var(--shadow);background:var(--surface)}
-.shot img{display:block;width:100%;height:auto}
-.shot .desk-only{display:block}.shot .mobile-only{display:none;max-width:420px;margin-inline:auto}
-.pin{position:absolute;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--on-accent);font:600 12px/26px var(--fm);text-align:center;box-shadow:0 0 0 4px color-mix(in srgb, var(--accent) 30%, transparent)}
-.callouts{display:grid;grid-template-columns:repeat(4,1fr);gap:14px 24px;margin-top:18px;font-size:14px;color:var(--text-muted)}
-.callouts b{display:inline-block;width:20px;height:20px;border-radius:50%;background:var(--accent);color:var(--on-accent);font:600 11px/20px var(--fm);text-align:center;margin-right:8px}
-@media (max-width:720px){.shot .desk-only{display:none}.shot .mobile-only{display:block}.pin{display:none}.callouts{grid-template-columns:1fr 1fr}}
+/* Flow diagram */
+.pipe{display:grid;grid-template-columns:repeat(5,1fr);gap:0;align-items:stretch}
+.node{border:1px solid var(--rule);background:var(--sheet);border-radius:10px;padding:14px;display:grid;gap:4px;align-content:start;min-width:0;position:relative}
+.node .tag{font-size:11px}
+.node h3{font-size:16px}
+.node p{font-size:13.5px;line-height:1.45}
+.node.wa{border-color:color-mix(in srgb,var(--chat) 45%,var(--rule));background:var(--chat-wash)}
+.node.core{border-color:color-mix(in srgb,var(--ember) 45%,var(--rule));background:var(--ember-wash)}
+.pipe .arrow{display:grid;place-items:center;color:var(--ink-3);font:500 13px var(--fm)}
+.pipe{grid-template-columns:1fr 28px 1fr 28px 1.2fr 28px 1fr}
+@media (max-width:900px){.pipe{grid-template-columns:1fr}.pipe .arrow{transform:rotate(90deg);height:26px}}
 
-/* Flow + funnel */
-.flow{display:grid;grid-template-columns:1.25fr 1fr;gap:40px;align-items:center}
-.phones{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.phone{border:1px solid var(--line-strong);border-radius:22px;background:var(--surface);padding:14px 12px;aspect-ratio:9/17.4;display:flex;flex-direction:column;gap:9px;font-size:11px;color:var(--text-muted);box-shadow:var(--shadow)}
-.phone .t{font:500 12px/1.2 var(--fb);color:var(--text);margin-top:12px}
-.phone .f{height:8px;border-radius:4px;background:var(--fill-active)}
-.phone .f.w60{width:60%}.phone .f.w80{width:80%}.phone .f.w45{width:45%}
-.phone .opt{display:flex;align-items:center;gap:7px;padding:6px 8px;border:1px solid var(--border);border-radius:8px}
-.phone .opt i{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--text-dim)}
-.phone .opt.on{border-color:var(--accent);background:var(--accent-dim)}
-.phone .opt.on i{border-color:var(--accent);background:var(--accent)}
-.phone .opt.off{opacity:.38}
-.phone .cta{margin-top:auto;padding:8px;border-radius:8px;background:var(--brand-whatsapp);color:#042a12;font:600 11px/1 var(--fb);text-align:center}
-.phone .row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--line-soft)}
-.phone .row span:last-child{color:var(--text)}
-.phone .total{font:600 15px/1 var(--fm);color:var(--text);margin-top:4px}
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:10px;font:500 12px/1.3 var(--fm);color:var(--text-dim);letter-spacing:.06em;text-transform:uppercase}
-@media (max-width:900px){.flow{grid-template-columns:1fr}}
-@media (max-width:520px){.phones{grid-template-columns:1fr;max-width:280px}.steps{display:none}}
+/* Tables */
+.tbl{overflow-x:auto;border-top:1px solid var(--ink)}
+table{border-collapse:collapse;width:100%;min-width:620px;font-size:14.5px}
+th,td{text-align:left;padding:11px 14px 11px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font:500 11.5px/1.2 var(--fm);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+td:first-child{font-family:var(--fm);font-size:13.5px;color:var(--ink);white-space:nowrap}
+td{color:var(--ink-2)}
 
-/* Honest panel */
-.tiles{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:30px}
-.tile{padding:24px 24px 22px;border-radius:12px;background:var(--surface);border:1px solid var(--line-soft);border-left:3px solid var(--red)}
-.tile .n{font:600 44px/1 var(--fm);letter-spacing:-.03em;color:var(--text)}
-.tile .l{margin-top:8px;font-size:14px;color:var(--text-muted)}
-@media (max-width:600px){.tiles{grid-template-columns:1fr}}
+/* Sequence (parent messages) */
+.seq{display:grid;grid-template-columns:repeat(4,1fr);border-top:2px solid var(--ink);position:relative}
+.seq div{padding:14px 14px 0 0;display:grid;gap:4px;position:relative;min-width:0}
+.seq div:before{content:"";position:absolute;top:-7px;left:0;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--ink)}
+.seq div.hot:before{background:var(--ember);border-color:var(--ember)}
+.seq b{font:600 15px/1.2 var(--fd)}
+.seq span{font-size:13.5px;color:var(--ink-3);line-height:1.4}
+@media (max-width:640px){.seq{grid-template-columns:1fr 1fr;row-gap:22px}}
 
-/* Under the hood: two theme panels */
-.themes{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:30px}
-.panel{padding:22px;border-radius:14px;background:var(--bg);border:1px solid var(--border);color:var(--text);display:flex;flex-direction:column;gap:14px}
-.panel .ph{font:500 11px/1 var(--fm);letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim)}
-.ui-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-.btn{font:600 13px/1 var(--fb);padding:10px 14px;border-radius:9px;background:var(--accent);color:var(--on-accent);border:0}
-.btn.ghost{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
-.seg{display:inline-flex;padding:3px;border:1px solid var(--border);border-radius:9px;background:var(--surface2);font:500 12px/1 var(--fb)}
-.seg span{padding:7px 11px;border-radius:7px;color:var(--text-muted)}
-.seg span.on{background:var(--fill-active);color:var(--text)}
-.stepper{display:inline-flex;align-items:center;border:1px solid var(--border);border-radius:9px;background:var(--surface2);font:500 13px/1 var(--fb)}
-.stepper span{padding:9px 12px}
-.stepper span:first-child,.stepper span:last-child{color:var(--text-dim);border-inline:1px solid var(--line-soft)}
-.stepper span:first-child{border-left:0}.stepper span:last-child{border-right:0}
-.stepper small{display:block;margin-top:3px;font:500 9px/1 var(--fm);letter-spacing:.14em;color:var(--accent-text)}
-.slot{flex:1;min-width:96px;padding:9px 10px;border-radius:9px;border:1px solid var(--border);background:var(--surface);font:500 12px/1.4 var(--fb)}
-.slot .st{display:inline-block;margin-top:5px;font:600 9px/1 var(--fm);letter-spacing:.1em;padding:3px 5px;border-radius:4px}
-.slot.paid{border-color:color-mix(in srgb,var(--green) 50%,transparent);background:var(--green-dim)}
-.slot.paid .st{background:var(--green);color:#10231A}
-.slot.due{border-color:color-mix(in srgb,var(--amber) 50%,transparent);background:var(--amber-dim)}
-.slot.due .st{background:var(--amber);color:#2a2200}
-.slot.empty{color:var(--text-dim);background:var(--surface2)}
-.slot.empty .mono{color:var(--text-muted)}
-.slot.block{background:var(--stripe),var(--surface2);color:var(--text-muted)}
-.hours{height:10px;border-radius:5px;background:var(--surface2);overflow:hidden;display:flex;flex:1;min-width:140px}
-.hours i{display:block;height:100%}
-.hours .a{width:48%;background:var(--green)}.hours .b{width:22%;background:var(--amber)}.hours .c{width:14%;background:var(--stripe),var(--mship)}
-.toast{display:inline-flex;align-items:center;gap:9px;padding:9px 12px;border-radius:9px;background:var(--surface3);border:1px solid var(--line-strong);font:500 12px/1 var(--fb);box-shadow:var(--shadow)}
-.toast i{width:8px;height:8px;border-radius:50%;background:var(--green)}
-.tip{position:relative;display:inline-block;padding:6px 9px;border-radius:7px;background:var(--text);color:var(--bg);font:500 11px/1 var(--fb)}
-.tip:after{content:"";position:absolute;left:50%;bottom:-5px;width:10px;height:10px;background:var(--text);transform:translateX(-50%) rotate(45deg)}
-.trow{display:grid;grid-template-columns:1.4fr 1fr 1fr auto;gap:12px;align-items:center;padding:10px 12px;border-radius:9px;background:var(--surface);border:1px solid var(--line-soft);font-size:12px}
-.trow .d{color:var(--text-muted)}
-.trow .pill{font:600 9px/1 var(--fm);letter-spacing:.1em;padding:4px 6px;border-radius:4px;background:var(--red-dim);color:var(--red)}
-.swatches{display:flex;flex-wrap:wrap;gap:6px;margin-top:18px}
-.sw{display:flex;align-items:center;gap:7px;padding:5px 9px 5px 5px;border:1px solid var(--line-soft);border-radius:999px;font:500 11px/1 var(--fm);color:var(--text-muted)}
-.sw i{width:16px;height:16px;border-radius:50%;border:1px solid var(--line-strong)}
-@media (max-width:760px){.themes{grid-template-columns:1fr}}
+/* Split bar */
+.split{display:grid;gap:10px}
+.split .bar{display:flex;height:44px;border-radius:8px;overflow:hidden;font:600 14px/44px var(--fm)}
+.split .bar span{padding-inline:14px;white-space:nowrap}
+.split .coach{background:var(--ink);color:var(--paper);flex:65}
+.split .venue{background:var(--ember);color:#fff;flex:35}
 
-/* Timeline */
-.strip{display:flex;flex-wrap:wrap;gap:8px 26px;margin-top:18px;font:500 13px/1.4 var(--fm);color:var(--text-muted)}
-.strip b{color:var(--text);font-weight:600}
-.tl-list{display:none;list-style:none;padding:0;margin:20px 0 0;font-size:14px;color:var(--text-muted)}
-.tl-list li{padding:8px 0;border-bottom:1px solid var(--line-soft)}
-.tl-list li .mono{color:var(--accent-text);margin-right:10px}
-@media (max-width:640px){.tl-svg{display:none}.tl-list{display:block}}
+/* Voice timeline */
+.attempts{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.attempt{border:1px solid var(--rule);border-radius:12px;background:var(--sheet);padding:20px;display:grid;gap:12px;align-content:start;min-width:0}
+.attempt .when{font:500 12px/1 var(--fm);color:var(--ink-3)}
+.attempt ul{margin:0;padding-left:18px;display:grid;gap:6px;font-size:15px;color:var(--ink-2)}
+.attempt .out{border-top:1px solid var(--rule);padding-top:12px;font-size:14.5px;color:var(--ink-2)}
+.attempt .out b{color:var(--ink)}
+@media (max-width:760px){.attempts{grid-template-columns:1fr}}
 
-/* Obsessions */
-.ob{list-style:none;padding:0;margin:26px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:16px 40px;counter-reset:ob}
-.ob li{counter-increment:ob;padding-left:40px;position:relative;color:var(--text-2);font-size:16px}
-.ob li:before{content:counter(ob,decimal-leading-zero);position:absolute;left:0;top:2px;font:500 12px/1 var(--fm);color:var(--accent-text)}
-.ob li strong{color:var(--text);font-weight:500}
-@media (max-width:720px){.ob{grid-template-columns:1fr}}
-.repo{display:grid;grid-template-columns:auto 1fr auto;gap:22px;align-items:center;margin-top:44px;padding:22px 24px;border-radius:14px;background:var(--surface);border:1px solid var(--line-soft);transition:border-color var(--t)}
-.repo:hover{border-color:var(--line-strong)}
-.repo .mini{width:120px}
-.repo h3{margin:0 0 6px;font:500 20px/1.1 var(--fd);letter-spacing:-.01em;color:var(--text)}
-.repo p{margin:0;font-size:14px;color:var(--text-muted)}
-.repo .go{font:600 13px/1 var(--fb);padding:11px 15px;border-radius:9px;background:var(--accent);color:var(--on-accent);white-space:nowrap}
-@media (max-width:640px){.repo{grid-template-columns:1fr}.repo .mini{display:none}}
-footer{padding:36px var(--gutter) 60px;border-top:1px solid var(--line-soft);font-size:14px;color:var(--text-muted)}
-footer .by{font:500 16px var(--fb);color:var(--text)}
-footer .links{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px 18px}
+.callout{border-left:3px solid var(--ember);padding:4px 0 4px 18px;font:500 clamp(19px,2.2vw,23px)/1.4 var(--fd);letter-spacing:-.01em;color:var(--ink);max-width:40ch}
 
-@media print{
-  :root{--bg:#fff;--surface:#fff;--surface2:#faf8f4;--surface3:#fff;--text:#1e1813;--text-2:#4a4139;--text-muted:#6d635a;--text-dim:#7d7369;--border:rgba(30,24,19,.14);--line-soft:rgba(30,24,19,.1);--line-strong:rgba(30,24,19,.2);--accent:#d1701f;--accent-text:#b45f16;--green:#17864a;--amber:#b8860b;--red:#cf3552;--desk:#c9bfb3;--shadow:none;--fill-active:rgba(30,24,19,.09);--fill-2:rgba(30,24,19,.05);--green-dim:rgba(23,134,74,.12);--amber-dim:rgba(184,134,11,.13);--red-dim:rgba(207,53,82,.1);--accent-dim:rgba(209,112,31,.12)}
-  .top .toggle{display:none}.top{position:static}
-  section{padding-block:36px;break-inside:avoid}
-  figure,.stats,.tiles,.themes,.repo{break-inside:avoid}
-  .pre .bar{transform:none}
+footer{border-top:1px solid var(--rule);padding-block:36px 56px;display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-between;font-size:14px;color:var(--ink-3)}
+footer b{color:var(--ink);font:700 17px var(--fd)}
+
+@media (prefers-reduced-motion:no-preference){
+  .rise{animation:rise .6s cubic-bezier(.2,.7,.2,1) both}
+  .rise:nth-child(2){animation-delay:.06s}.rise:nth-child(3){animation-delay:.12s}.rise:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{transform:translateY(8px);opacity:.001}to{transform:none;opacity:1}}
 }
 </style>
 </head>
 <body>
 
 <header class="top">
-  <div class="brand"><b>831.</b> Project 831</div>
-  <div class="toggle" role="group" aria-label="Theme">
-    <button type="button" data-theme-set="light" aria-pressed="false">Light</button>
-    <button type="button" data-theme-set="dark" aria-pressed="false">Dark</button>
-    <button type="button" data-theme-set="auto" aria-pressed="true">Auto</button>
+  <a class="mark" href="#top"><span>831</span> Project 831</a>
+  <nav aria-label="Sections">
+    <a href="#booking">Booking</a><a href="#meta">Meta</a><a href="#desk">The desk</a><a href="#club">Off-Screen Club</a><a href="#apis">APIs</a><a href="#voice">Voice</a><a href="#build">How it was built</a>
+  </nav>
+  <div class="theme" role="group" aria-label="Theme">
+    <button type="button" data-t="light" aria-pressed="false">Light</button>
+    <button type="button" data-t="auto" aria-pressed="true">Auto</button>
+    <button type="button" data-t="dark" aria-pressed="false">Dark</button>
   </div>
 </header>
 
-<main>
+<main id="top">
 
-<!-- 01 Hero -->
-<section id="hero">
-  <div class="wrap lede">
-    <p class="k">Side project · Jamshedpur, India · 2026</p>
-    <h1>A booking engine I run a venue on.</h1>
-    <p>A two-court pickleball venue, booked over WhatsApp and the web by one engine. Built on the side; I also run it.</p>
-    <p class="small">Revenue is operator-reported. Everything else on this page is computed from the production database.</p>
-    <div class="stats" id="stats">
-      <div class="stat"><div class="n" data-count="4.2" data-prefix="₹" data-suffix="L" data-decimals="1">₹4.2L</div><div class="l">court revenue, May to mid-Oct</div></div>
-      <div class="stat"><div class="n"><span data-count="15" data-suffix="%">15%</span><span class="arrow">→</span><span data-count="74" data-suffix="%">74%</span></div><div class="l">bookings made self-serve, May → Sep</div></div>
-      <div class="stat"><div class="n" data-count="69" data-suffix="%">69%</div><div class="l">of people who open the WhatsApp flow book</div></div>
-      <div class="stat"><div class="n" data-count="56" data-suffix="%">56%</div><div class="l">of customers come back</div></div>
+<!-- ───────── Hero ───────── -->
+<section class="hero">
+  <div class="wide">
+    <div class="intro">
+      <p class="tag rise">Side project · Jamshedpur, India · March – October 2026</p>
+      <h1 class="rise">A venue that books itself <em>inside WhatsApp.</em></h1>
+      <p class="lede rise">Project 831 is a two-court pickleball venue. On the side, I designed and built the system it runs on: booking inside WhatsApp, a desk dashboard, and a kids' programme that handles its own renewals and splits its money with the coach.</p>
+    </div>
+    <div class="stats">
+      <div class="stat"><b class="mono">₹5.6L</b><span>taken through the system since May</span></div>
+      <div class="stat"><b class="mono">15→74%</b><span>court bookings made without the desk, May → Sep</span></div>
+      <div class="stat"><b class="mono">69%</b><span>of people sent the booking flow went on to book</span></div>
+      <div class="stat"><b class="mono">1,509</b><span>commits in 200 days, most of them mine</span></div>
     </div>
   </div>
 </section>
 
-<!-- 02 The shift -->
-<section id="shift">
-  <div class="wrap">
-    <p class="k">01 · The shift</p>
-    <h2>The desk stopped being the way in.</h2>
-    <p>Desk bookings went from <strong>148 a month to 19</strong>. Demand didn't die; people found the door that was open at 11 PM.</p>
-    <p>Volume fell in August and September (monsoon). The self-serve share kept climbing anyway.</p>
-  </div>
-  <div class="wrap-fig">
-    <figure>
-      <div id="chart-shift"></div>
-      <div class="legend"><span><i style="background:var(--desk)"></i>Entered at the desk (walk-in, phone, manager)</span><span><i style="background:var(--accent)"></i>Self-serve (WhatsApp Flow, website; manual WhatsApp before mid-June)</span><span><i style="background:var(--brand-whatsapp);border-radius:50%"></i>Self-serve share</span></div>
-      <figcaption>Confirmed court bookings per month, May to 14 October 2026. October is a part month.</figcaption>
-    </figure>
-  </div>
-</section>
-
-<!-- 03 The grid -->
-<section id="grid">
-  <div class="wrap">
-    <p class="k">02 · A day on the grid</p>
-    <h2>Every cell is a state.</h2>
-    <p>Paid, due, blocked, or empty with its price on it. The desk reads the whole day in one glance and knows what to do next.</p>
-  </div>
-  <div class="wrap-fig">
-    <figure>
-      <div class="shot">
-        <img class="desk-only" src="img/bookings.jpg" width="1600" height="1000" alt="The bookings day view: a grid of courts across time, with paid, due, blocked and empty slots, and a header reading 13 hours of 26 booked, 50% of the day sold." loading="lazy">
-        <img class="mobile-only" src="img/mobile-bookings.jpg" width="700" height="1515" alt="The same bookings view on a phone." loading="lazy">
-        <span class="pin" style="left:46%;top:43.5%">1</span>
-        <span class="pin" style="left:22%;top:43.5%">2</span>
-        <span class="pin" style="left:46%;top:72%">3</span>
-        <span class="pin" style="left:71%;top:57%">4</span>
+<!-- ───────── Booking journey ───────── -->
+<section id="booking">
+  <div class="wide stack">
+    <div class="head col" style="margin-inline:0">
+      <p class="tag"><b>Booking</b> · real screenshots, 15 October</p>
+      <h2>Six taps from “831” to a confirmed court.</h2>
+      <p>No app, no website, no login. A customer types the venue's name into WhatsApp and books a court without leaving the chat.</p>
+    </div>
+    <div class="rail" role="list">
+      <figure role="listitem"><div class="phone"><img src="img/wa-1-welcome.jpg" alt="WhatsApp chat: the customer types 831; Project 831 replies with prices, location and three buttons: See slots and book, Call us, FAQs." loading="lazy"></div>
+        <figcaption><span class="mono">01 · Hello</span>Prices, location and three choices, before anyone asks.</figcaption></figure>
+      <figure role="listitem"><div class="phone"><img src="img/wa-2-launch.jpg" alt="The bot replies with Check available slots and a Pick a slot button that opens a WhatsApp Flow." loading="lazy"></div>
+        <figcaption><span class="mono">02 · Open the flow</span>One button opens a native form inside WhatsApp.</figcaption></figure>
+      <figure role="listitem"><div class="phone"><img src="img/wa-3-plan.jpg" alt="Flow screen Plan your booking: date preselected as today, time of day Morning or Evening, and duration 1 hour, 1 hour 30 minutes or 2 hours." loading="lazy"></div>
+        <figcaption><span class="mono">03 · When</span>Today and the next open session are already ticked.</figcaption></figure>
+      <figure role="listitem"><div class="phone"><img src="img/wa-4-pick-slot.jpg" alt="Flow screen Pick a start time: a list of one-hour windows from 4 PM, most marked Only 1 court left for this hour." loading="lazy"></div>
+        <figcaption><span class="mono">04 · Which hour</span>Only times that are actually free, live from the engine.</figcaption></figure>
+      <figure role="listitem"><div class="phone"><img src="img/wa-5-summary.jpg" alt="Flow screen Booking summary: Thursday 15 October, 6 to 7 PM, 1 hour, 700 rupees total, and a Confirm booking button." loading="lazy"></div>
+        <figcaption><span class="mono">05 · Check</span>The price shown is the price charged; one engine quotes both.</figcaption></figure>
+      <figure role="listitem"><div class="phone"><img src="img/wa-6-confirmed.jpg" alt="Confirmation message: you're booked at 831, with date, time, kit, pay 700 rupees at the venue, address, a maps link and a no-show rule." loading="lazy"></div>
+        <figcaption><span class="mono">06 · Booked</span>Confirmed in the same chat, with the map and the house rules.</figcaption></figure>
+    </div>
+    <div class="two">
+      <figure class="chart" id="funnel"><figcaption class="note">People sent the booking flow, 13 June – 14 October 2026, and how far they got.</figcaption></figure>
+      <div class="stack" style="gap:16px">
+        <p class="callout">Each version of the flow asks for less.</p>
+        <p class="note">v4 let you pick several slots. v5 added a kit screen. v6 asks one “When?” question, moves duration to the slot screen and shows no price copy until the summary.</p>
       </div>
-      <div class="callouts">
-        <div><b>1</b>Paid, with the amount</div>
-        <div><b>2</b>Due, with what's left to collect</div>
-        <div><b>3</b>Blocked for coaching</div>
-        <div><b>4</b>Empty, priced for that hour</div>
-      </div>
-      <figcaption>13 hr of 26 hr booked · 50% of the day sold. Mock data; the names are fake.</figcaption>
-    </figure>
-  </div>
-</section>
-
-<!-- 04 The flow -->
-<section id="flow">
-  <div class="wrap">
-    <p class="k">03 · The flow</p>
-    <h2>Three screens, not six.</h2>
-    <p>Sport, date, time of day, duration. Then only the start times that are actually free. Then confirm. It runs inside WhatsApp, so there is nothing to install.</p>
-    <p>Seven in ten people who open it finish. The biggest drop is the first step, where people are just looking.</p>
-  </div>
-  <div class="wrap-fig">
-    <figure class="flow">
-      <div>
-        <div class="phones" aria-hidden="true">
-          <div class="phone"><div class="t">Plan your booking</div><div class="f w45"></div><div class="opt on"><i></i>Pickleball</div><div class="opt"><i></i>Football</div><div class="f w60" style="margin-top:4px"></div><div class="opt on"><i></i>Sat 18 Oct</div><div class="opt on"><i></i>Evening</div><div class="opt on"><i></i>1 hour 30 minutes</div><div class="cta">Show available slots</div></div>
-          <div class="phone"><div class="t">Pick a start time</div><div class="f w80"></div><div class="opt off"><i></i>5:00 PM · booked</div><div class="opt"><i></i>6:00 PM</div><div class="opt on"><i></i>7:00 PM</div><div class="opt"><i></i>7:30 PM</div><div class="opt off"><i></i>8:30 PM · too short</div><div class="cta">Continue</div></div>
-          <div class="phone"><div class="t">Booking summary</div><div class="row"><span>Date</span><span>Sat 18 Oct</span></div><div class="row"><span>Time</span><span>7:00 – 8:30 PM</span></div><div class="row"><span>Duration</span><span>1 hour 30 minutes</span></div><div class="row"><span>Court</span><span>Court 2</span></div><div class="total">₹1,050</div><div class="cta">Confirm booking</div></div>
-        </div>
-        <div class="steps"><span>1 · Plan</span><span>2 · Start time</span><span>3 · Confirm</span></div>
-      </div>
-      <div>
-        <div id="chart-funnel"></div>
-        <figcaption>People who opened the WhatsApp flow, 13 June to 14 October 2026, and how far they got.</figcaption>
-      </div>
-    </figure>
-  </div>
-</section>
-
-<!-- 05 When people book -->
-<section id="when">
-  <div class="wrap">
-    <p class="k">04 · When people book</p>
-    <h2>Nearly one in ten books while the venue is shut.</h2>
-    <p>Bookings made between 10 PM and 7 AM used to be missed calls. Now they are rows in the database.</p>
-  </div>
-  <div class="wrap-fig">
-    <figure>
-      <div id="chart-hours"></div>
-      <figcaption>Self-serve bookings by the hour they were made (IST). The shaded band is when no one is at the desk.</figcaption>
-    </figure>
-  </div>
-</section>
-
-<!-- 06 Honest panel -->
-<section id="honest">
-  <div class="wrap">
-    <p class="k">05 · What went wrong</p>
-    <h2>Two numbers I don't like.</h2>
-    <p>A third of self-serve bookings get cancelled. Cancellations become credits, so the money stays; the slot often doesn't get re-sold.</p>
-    <p>On 10 October the database ran out of disk IO for 3 hours 37 minutes. The desk went back to paper.</p>
-    <p>Next: a shorter cancellation window and a waitlist, before anything new.</p>
-    <div class="tiles">
-      <div class="tile"><div class="n">34%</div><div class="l">self-serve bookings cancelled, July to October (103 of 302)</div></div>
-      <div class="tile"><div class="n">3h 37m</div><div class="l">outage on 10 October, a free-tier database out of disk IO</div></div>
     </div>
   </div>
 </section>
 
-<!-- 07 Under the hood -->
-<section id="hood">
-  <div class="wrap">
-    <p class="k">06 · Under the hood</p>
-    <h2>One token vocabulary, both themes.</h2>
-    <p><strong>44 hand-built primitives</strong>, dark and light from the same CSS variables. No component library.</p>
-    <p>Loading, empty and error states are part of the component, not an afterthought.</p>
-  </div>
-  <div class="wrap-fig">
-    <div class="themes">
-      <div class="panel" data-theme="dark" aria-label="Components in the dark theme">
-        <div class="ph">Dark</div>
-        <div class="ui-row"><span class="btn">New booking</span><span class="btn ghost">Jump to date</span><span class="seg"><span class="on">Day</span><span>Week</span><span>List</span></span></div>
-        <div class="ui-row"><span class="stepper"><span>‹</span><span>Thu 15 Oct 2026<small>TODAY</small></span><span>›</span></span><span class="toast"><i></i>Booking confirmed · ₹1,050</span></div>
-        <div class="ui-row"><span class="slot paid">Priya S. <span class="mono">07:00–08:00</span><br><span class="st">PAID</span> ₹700</span><span class="slot due">Arjiv M. <span class="mono">06:00–08:30</span><br><span class="st">DUE</span> ₹1,050 left</span><span class="slot empty"><span class="mono">₹225</span><br>free · 1 hr</span><span class="slot block">Coaching<br><span class="mono">10:00–11:00</span></span></div>
-        <div class="ui-row"><span class="hours"><i class="a"></i><i class="b"></i><i class="c"></i></span><span class="tip">7:30 PM, booked</span></div>
-        <div class="trow"><span>Reyansh · Off-Screen Club</span><span class="d mono">Ends Fri 2 Oct</span><span class="d">Every session</span><span class="pill">NEW MONTH · UNPAID</span></div>
-        <div class="swatches"><span class="sw"><i style="background:var(--bg)"></i>bg</span><span class="sw"><i style="background:var(--surface)"></i>surface</span><span class="sw"><i style="background:var(--surface2)"></i>surface2</span><span class="sw"><i style="background:var(--accent)"></i>accent</span><span class="sw"><i style="background:var(--green)"></i>green</span><span class="sw"><i style="background:var(--amber)"></i>amber</span><span class="sw"><i style="background:var(--red)"></i>red</span><span class="sw"><i style="background:var(--mship)"></i>mship</span></div>
-      </div>
-      <div class="panel" data-theme="light" aria-label="Components in the light theme">
-        <div class="ph">Light</div>
-        <div class="ui-row"><span class="btn">New booking</span><span class="btn ghost">Jump to date</span><span class="seg"><span class="on">Day</span><span>Week</span><span>List</span></span></div>
-        <div class="ui-row"><span class="stepper"><span>‹</span><span>Thu 15 Oct 2026<small>TODAY</small></span><span>›</span></span><span class="toast"><i></i>Booking confirmed · ₹1,050</span></div>
-        <div class="ui-row"><span class="slot paid">Priya S. <span class="mono">07:00–08:00</span><br><span class="st">PAID</span> ₹700</span><span class="slot due">Arjiv M. <span class="mono">06:00–08:30</span><br><span class="st">DUE</span> ₹1,050 left</span><span class="slot empty"><span class="mono">₹225</span><br>free · 1 hr</span><span class="slot block">Coaching<br><span class="mono">10:00–11:00</span></span></div>
-        <div class="ui-row"><span class="hours"><i class="a"></i><i class="b"></i><i class="c"></i></span><span class="tip">7:30 PM, booked</span></div>
-        <div class="trow"><span>Reyansh · Off-Screen Club</span><span class="d mono">Ends Fri 2 Oct</span><span class="d">Every session</span><span class="pill">NEW MONTH · UNPAID</span></div>
-        <div class="swatches"><span class="sw"><i style="background:var(--bg)"></i>bg</span><span class="sw"><i style="background:var(--surface)"></i>surface</span><span class="sw"><i style="background:var(--surface2)"></i>surface2</span><span class="sw"><i style="background:var(--accent)"></i>accent</span><span class="sw"><i style="background:var(--green)"></i>green</span><span class="sw"><i style="background:var(--amber)"></i>amber</span><span class="sw"><i style="background:var(--red)"></i>red</span><span class="sw"><i style="background:var(--mship)"></i>mship</span></div>
-      </div>
+<!-- ───────── Meta integration ───────── -->
+<section id="meta">
+  <div class="wide stack">
+    <div class="head col" style="margin-inline:0">
+      <p class="tag"><b>Meta integration</b> · WhatsApp Cloud API + Flows</p>
+      <h2>WhatsApp is the front door, so I built it like one.</h2>
+      <p>The bot, the booking Flow, the confirmations and the marketing all run on Meta's WhatsApp Cloud API, wired straight to the booking engine.</p>
     </div>
-    <figcaption>Button, segmented control, date stepper, toast, slot in four states, hours bar, tooltip, a list row, and the eight colour tokens behind them.</figcaption>
-  </div>
-</section>
-
-<!-- 08 How it was built -->
-<section id="built">
-  <div class="wrap">
-    <p class="k">07 · How it was built</p>
-    <h2>Two hundred days, one person.</h2>
-    <p>React 19 + Vite PWA, Supabase Postgres, 12 serverless functions on Vercel, WhatsApp Flows. A separate Next.js marketing site.</p>
-    <p><strong>68% of commits co-authored with Claude Code.</strong> I specify and review; the machine types.</p>
-  </div>
-  <div class="wrap-fig">
-    <figure>
-      <div id="chart-timeline" class="tl-svg"></div>
-      <ul class="tl-list">
-        <li><span class="mono">28 Mar</span>Repo starts</li>
-        <li><span class="mono">16 May</span>First live booking</li>
-        <li><span class="mono">13 Jun</span>WhatsApp Flow goes live</li>
-        <li><span class="mono">Jul</span>Website bookings open</li>
-        <li><span class="mono">10 Oct</span>The outage</li>
-      </ul>
-      <div class="strip"><span><b>1,505</b> commits</span><span><b>264</b> PRs merged</span><span><b>2,737</b> tests</span><span><b>12</b> API functions</span><span><b>35</b> admin views</span><span><b>44</b> primitives</span><span><b>200</b> days</span></div>
-      <figcaption>Commits per week, 28 March to 14 October 2026.</figcaption>
+    <div class="pipe" aria-label="How a WhatsApp booking moves through the system">
+      <div class="node wa"><span class="tag">Customer</span><h3>WhatsApp</h3><p>Chat, buttons, a 3-screen Flow, in-chat pay.</p></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="node"><span class="tag">Meta</span><h3>Cloud API</h3><p>Signed webhooks in; templates and messages out.</p></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="node core"><span class="tag">831 engine</span><h3>Webhook + Flow endpoint</h3><p>Encrypted data exchange returns live slots and prices per screen.</p></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="node"><span class="tag">Data</span><h3>Postgres</h3><p>Bookings, money, flow events. Row-level security on every table.</p></div>
+    </div>
+    <div class="facts">
+      <div class="fact"><span class="k">Flows</span><h3>An encrypted form inside chat</h3><p>RSA-OAEP + AES-GCM on every screen. The first screen ships with its data, so it opens with no server round trip.</p></div>
+      <div class="fact"><span class="k">Flow studio</span><h3>A Flow builder in the dashboard</h3><p>Draft, preview, publish and promote Flows through the Graph API without opening Meta's tools.</p></div>
+      <div class="fact"><span class="k">24-hour rule</span><h3>Confirmations that always land</h3><p>Approved templates by default, a 30-minute safety margin on the window, and a retry when Meta refuses.</p></div>
+      <div class="fact"><span class="k">Two numbers</span><h3>Marketing can't break login</h3><p>Promotions go out on a second number, so a block or report never touches the number that sends login codes.</p></div>
+      <div class="fact"><span class="k">Funnel</span><h3>Every abandoned booking is visible</h3><p>Seven stages are logged per person; the desk can nudge a drop-off with one tap, inside the window only.</p></div>
+      <div class="fact"><span class="k">Consent</span><h3>Utility and marketing kept apart</h3><p>Opt-ins stored with evidence, a Stop promotions button on every campaign, and sends paused when Meta rate-limits.</p></div>
+    </div>
+    <figure class="shot">
+      <div class="frame"><img src="img/broadcasts.jpg" alt="Broadcasts screen: choose an approved Meta template by category, add context, select eligible recipients, live preview on the right." loading="lazy" width="1600" height="1000"></div>
+      <figcaption><span class="mock">Mock data</span><b>Broadcasts.</b> Campaigns go out only through approved templates, and only to people whose consent covers that category.</figcaption>
     </figure>
   </div>
 </section>
 
-<!-- 09 Obsessions -->
-<section id="obsessed">
-  <div class="wrap">
-    <p class="k">08 · What I obsessed over</p>
-    <h2>Five things.</h2>
-    <ul class="ob">
-      <li><strong>Slot state is the product.</strong> Paid, due, blocked, empty-with-price. Every cell says what to do next.</li>
-      <li><strong>Time is IST in the engine and local on the screen.</strong> No booking has landed on the wrong day.</li>
-      <li><strong>Desk and bot write to one engine.</strong> A walk-in can never double-book a WhatsApp slot.</li>
-      <li><strong>Three screens, not six.</strong> Every field I removed from the flow raised completion.</li>
-      <li><strong>Motion is three durations and nothing else.</strong> Dark and light are the same component.</li>
-    </ul>
-    <p style="margin-top:34px">Cal.com asked for the work and what I obsessed over. This is it. The slot picker below is the same obsession, extracted into their stack.</p>
-    <a class="repo" href="https://github.com/rkj-builds/slot-picker" id="repo-link">
-      <svg class="mini" viewBox="0 0 120 84" aria-hidden="true"><rect x="0" y="0" width="120" height="84" rx="10" fill="var(--surface2)"/><g font-family="var(--fm)" font-size="9" fill="var(--text-muted)"><rect x="12" y="14" width="96" height="14" rx="4" fill="var(--fill-2)"/><text x="18" y="24">6:00 PM</text><rect x="12" y="34" width="96" height="14" rx="4" fill="var(--accent)"/><text x="18" y="44" fill="var(--on-accent)" font-weight="600">7:00 PM</text><rect x="12" y="54" width="96" height="14" rx="4" fill="var(--fill-2)"/><text x="18" y="64">7:30 PM</text></g></svg>
-      <span><h3>slot-picker</h3><p>A time-zone-aware booking slot picker on Base UI, in coss ui house style. TypeScript, React 19, Tailwind v4, tested across a DST change. <a href="https://rkj-builds.github.io/slot-picker/" onclick="event.stopPropagation()">Live demo</a></p></span>
-      <span class="go">Open the repo →</span>
-    </a>
+<!-- ───────── The desk ───────── -->
+<section id="desk">
+  <div class="wide stack">
+    <div class="head col" style="margin-inline:0">
+      <p class="tag"><b>The desk</b> · bookings dashboard</p>
+      <h2>The desk stopped being the way in.</h2>
+      <p>Self-serve bookings went from 15% to 74% of the month in four months. The desk now reads the day instead of typing it.</p>
+    </div>
+    <figure class="chart" id="shift"><div class="legend"><span><i style="background:var(--desk)"></i>Entered at the desk</span><span><i style="background:var(--ember)"></i>Booked by the customer (WhatsApp, website)</span></div></figure>
+    <figure class="shot">
+      <div class="frame"><img src="img/bookings.jpg" alt="Bookings day view: courts as columns and hours as rows, with paid, due, coaching blocks and empty slots priced by the hour, plus the day's expected revenue." loading="lazy" width="1600" height="1000"></div>
+      <figcaption><span class="mock">Mock data</span><b>One day, one screen.</b> Paid, due, blocked or empty with its price, and what the day is worth at the top.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ───────── Off-Screen Club ───────── -->
+<section id="club">
+  <div class="wide stack">
+    <div class="head col" style="margin-inline:0">
+      <p class="tag"><b>Off-Screen Club Juniors</b> · kids' fitness, run with a coach</p>
+      <h2>A weekly programme that runs, renews and splits itself.</h2>
+      <p>Saturday and Sunday batches for children, run with an outside coach. Parents sign up on the website or at the desk; the system handles the month after that.</p>
+    </div>
+    <div class="two">
+      <figure class="chart" id="club-rev"><figcaption class="note">Juniors money collected per month. October is the first half only.</figcaption></figure>
+      <div class="stats" style="margin-top:0;grid-template-columns:1fr 1fr">
+        <div class="stat"><b class="mono">₹1.21L</b><span>collected since July</span></div>
+        <div class="stat"><b class="mono">48</b><span>children from 36 families</span></div>
+        <div class="stat"><b class="mono">40</b><span>paid membership months</span></div>
+        <div class="stat"><b class="mono">117</b><span>attendance marks, taken by the coach's team</span></div>
+      </div>
+    </div>
+
+    <div class="two">
+      <div class="split">
+        <h3>Who keeps what</h3>
+        <div class="bar" role="img" aria-label="Coach 65 percent, venue 35 percent"><span class="coach">Coach 65%</span><span class="venue">Venue 35%</span></div>
+        <p class="note">Split after shared costs. Both sides open the same accounts page, every line needs the other side's tick, and a settled week is frozen by the database.</p>
+      </div>
+      <div class="split">
+        <h3>Three plans, one register</h3>
+        <p style="font-size:15px">₹2,999 for every session in the month, ₹1,999 for any four, ₹599 for one. Memberships stay on the register until someone stops them, and attendance is the record of what was used.</p>
+      </div>
+    </div>
+
+    <figure class="shot">
+      <div class="frame"><img src="img/register.jpg" alt="The register: 11 children to chase, cash not collected, a warning that no attendance was taken since 8 August, and rows with Take cash or Renew as the next step." loading="lazy" width="1600" height="1000"></div>
+      <figcaption><span class="mock">Mock data</span><b>The register.</b> It opens on who to chase and names the next step for each child: take cash, renew, or nothing.</figcaption>
+    </figure>
+
+    <div class="stack" style="gap:18px">
+      <h3>Renewals chase themselves</h3>
+      <div class="seq">
+        <div><b>3 days before</b><span>“Month ends Friday” with Renew and Call me buttons</span></div>
+        <div class="hot"><b>The day it ends</b><span>Reminder; the child stays on the register as unpaid</span></div>
+        <div><b>3 days after</b><span>Second nudge</span></div>
+        <div><b>10 days after</b><span>Last nudge, then a person calls</span></div>
+      </div>
+      <p class="note">Planned every morning at 7, sent between 9 AM and 8 PM, at most two a week per family, cancelled the moment the family pays. Each sequence can run off, for review, or automatically.</p>
+    </div>
+
+    <div class="two">
+      <figure class="shot">
+        <div class="frame"><img src="img/event-money.jpg" alt="Event accounts: money in, costs, still to collect and left to share, with each partner's collected, holding, share and entitlement, and who owes whom." loading="lazy" width="1600" height="1000"></div>
+        <figcaption><span class="mock">Mock data, 60/40 example</span><b>Settling up.</b> Who holds the cash, who is owed, and one button to close the week.</figcaption>
+      </figure>
+      <div class="facts" style="grid-template-columns:1fr;border-top:1px solid var(--rule)">
+        <div class="fact" style="padding-left:0;border-left:0"><span class="k">Collaborators</span><h3>One grant opens the programme</h3><p>The coach gets a collaborator role that starts with zero access. A grant on the programme opens every plan and batch inside it.</p></div>
+        <div class="fact" style="padding-left:0;border-left:0"><span class="k">Money rights</span><h3>Given per person, per programme</h3><p>The coach's team takes cash at the venue and records it. Prices, refunds and deletes stay with the venue.</p></div>
+        <div class="fact" style="padding-left:0;border-left:0"><span class="k">No login</span><h3>Attendance from a link and a PIN</h3><p>A signed WhatsApp link opens one programme's register for 60 days, never shows parents' numbers, and dies when the key rotates.</p></div>
+        <div class="fact" style="padding-left:0;border-left:0"><span class="k">From WhatsApp</span><h3>The coach works in chat</h3><p>Enrolments and payments come in through a desk Flow and pass the same rules as the dashboard.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── APIs ───────── -->
+<section id="apis">
+  <div class="wide stack">
+    <div class="head col" style="margin-inline:0">
+      <p class="tag"><b>APIs</b> · 12 serverless functions, 6 outside services</p>
+      <h2>One engine, many doors.</h2>
+      <p>WhatsApp, the website, the dashboard and the voice agent all call the same booking API. No business rule exists twice.</p>
+    </div>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Endpoint</th><th>Serves</th><th>Detail that matters</th></tr></thead>
+        <tbody>
+          <tr><td>/api/webhook</td><td>Every WhatsApp message, status and payment</td><td>Signature checked on the raw body; duplicates claimed once</td></tr>
+          <tr><td>/api/flow</td><td>The booking Flow's screens</td><td>End-to-end encrypted; slots and prices from the live engine</td></tr>
+          <tr><td>/api/bookings</td><td>Dashboard and website bookings</td><td>Public reads and creates rate-limited per visitor</td></tr>
+          <tr><td>/api/events</td><td>Programmes, registrations, attendance, collaborators</td><td>The coach's WhatsApp entries call it in-process with his identity</td></tr>
+          <tr><td>/api/razorpay</td><td>Payment webhooks for Razorpay and HDFC</td><td>Never trusts a callback; re-reads the payment first</td></tr>
+          <tr><td>/api/admin-data</td><td>The dashboard: money, staff, messages, settlements</td><td>About 36 resources behind role and grant checks</td></tr>
+          <tr><td>/api/cron</td><td>Reminders, follow-ups, briefings, renewals</td><td>Six schedules across every venue on the platform</td></tr>
+          <tr><td>/api/v1</td><td>The voice agent</td><td>Per-venue keys, rate limits, idempotent bookings</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="facts">
+      <div class="fact"><span class="k">Meta Graph</span><h3>Messages, templates, Flows, payments</h3><p>API version pinned in code, with an alarm 90 days before Meta retires it.</p></div>
+      <div class="fact"><span class="k">Razorpay · HDFC</span><h3>Three payment rails, one settlement</h3><p>Checkout, payment links and in-chat WhatsApp Pay all finish in the same code.</p></div>
+      <div class="fact"><span class="k">Multi-venue</span><h3>Built to host more than one venue</h3><p>Each venue's keys are encrypted at rest with a rotating keyring; webhooks resolve the venue from the URL and the number.</p></div>
+    </div>
+    <p class="note">Also: Postgres with deny-all row-level security, web push for the desk, Vercel cron. Tests run behind a network guard, so no test can reach a real service.</p>
+  </div>
+</section>
+
+<!-- ───────── Voice ───────── -->
+<section id="voice">
+  <div class="wide stack">
+    <div class="head col" style="margin-inline:0">
+      <p class="tag"><b>Voice agents</b> · two attempts, both parked</p>
+      <h2>We tried to answer the phone with an agent. Twice.</h2>
+      <p>Plenty of customers still prefer to call, so we built a voice agent that could book. It worked; it wasn't worth keeping. What lasted is the API it forced us to build.</p>
+    </div>
+    <div class="attempts">
+      <div class="attempt">
+        <span class="when">Attempt 1 · 26 May – 5 June</span>
+        <h3>Our own agent on WhatsApp calling</h3>
+        <ul>
+          <li>Meta WhatsApp calling → a Node server in Mumbai</li>
+          <li>Sarvam AI for speech, model and voice; English, Hindi and Hinglish</li>
+          <li>Could check slots, book, cancel and reschedule</li>
+          <li>Interruptions handled; worst-case reply cut from 10 s to 3 s</li>
+        </ul>
+        <p class="out"><b>28 calls and 12 test bookings in 72 hours.</b> Then a review found it fragile: booking logic copied outside the app, calls held in memory, a reschedule that could lose a booking.</p>
+      </div>
+      <div class="attempt">
+        <span class="when">Attempt 2 · 28 July – early September</span>
+        <h3>A voice platform, our API in charge</h3>
+        <ul>
+          <li>Dograh as the voice layer; the app keeps every booking rule</li>
+          <li>Narrow tool API: venue info, dates, slots, the caller's bookings, book, cancel</li>
+          <li>Idempotency keys, confirmation sent once, caller sees only their own bookings</li>
+          <li>152 example conversations prepared for tuning tone</li>
+        </ul>
+        <p class="out"><b>Booked end to end in testing, never with a real customer.</b> The WhatsApp-to-phone route was never proven; voice was switched off in October.</p>
+      </div>
+    </div>
+    <p class="callout">The lesson: buy the voice, own the booking rules.</p>
+  </div>
+</section>
+
+<!-- ───────── Build ───────── -->
+<section id="build">
+  <div class="wide stack">
+    <div class="head col" style="margin-inline:0">
+      <p class="tag"><b>How it was built</b> · 28 March – 14 October 2026</p>
+      <h2>Designed and built by me, with Claude Code.</h2>
+      <p>68% of commits co-authored with Claude Code. I specify and review; the machine types.</p>
+    </div>
+    <figure class="chart" id="commits"><figcaption class="note">Commits per week, 28 March – 14 October 2026.</figcaption></figure>
+    <div class="facts two">
+      <div class="fact"><span class="k">Stack</span><h3>React 19, Vite PWA, Postgres</h3><p>12 serverless functions on Vercel, a separate Next.js marketing site, no component library.</p></div>
+      <div class="fact"><span class="k">Safety</span><h3>Production data is never test data</h3><p>2,700+ tests run offline; a mock mode answers every API call in the browser; a PII scanner blocks real phone numbers in the repo.</p></div>
+    </div>
   </div>
 </section>
 
 </main>
 
-<footer>
-  <div class="wrap">
-    <div class="by">Rahul Jha · Design Engineer</div>
-    <div class="links">
-      <a href="https://github.com/rkj-builds">GitHub</a>
-      <a href="https://project831.in">project831.in</a>
-    </div>
-  </div>
+<footer class="wide">
+  <div><b>Rahul Jha</b> · Design Engineer</div>
+  <div>Revenue figures come from the venue's own database, read-only. Dashboard screens use mock data; names in them are invented. WhatsApp screens are real, from my own phone.</div>
 </footer>
 
 <script>
-/* ── Every number on the page lives here ────────────────────── */
 const DATA = {
-  months: ['May','Jun','Jul','Aug','Sep','Oct'],
-  partial: [false,false,false,false,false,true],   // Oct = 1–14
-  desk:  [72,148,109,47,19,16],
-  self:  [13,9,52,65,54,28],
-  share: [15,6,32,58,74,64],
-  flags: [{m:1,label:'WhatsApp Flow · mid-Jun'},{m:2,label:'Website · Jul'}],
-  funnel: [{l:'Opened the flow',n:134},{l:'Picked a date',n:118},{l:'Picked a slot',n:105},{l:'Confirmed',n:93}],
-  hours: [4,0,1,1,0,2,4,4,0,0,2,5,14,15,9,28,16,17,31,29,21,10,2,6], // IST, hour booking was made
-  closed: {from:22, to:7},
-  weeks: [20,21,8,1,0,0,16,66,27,21,56,92,63,38,71,16,71,75,128,184,25,32,65,12,6,7,22,0,169,188], // ISO weeks 13–42
-  marks: [{w:0,label:'Repo starts',d:'28 Mar'},{w:7,label:'First live booking',d:'16 May'},{w:11,label:'WhatsApp Flow',d:'13 Jun'},{w:14,label:'Website',d:'Jul'},{w:28,label:'Outage',d:'10 Oct'}],
+  funnel:[{l:'Sent the booking flow',n:134},{l:'Picked a date',n:118},{l:'Picked a slot',n:105},{l:'Booked',n:93}],
+  months:['May','Jun','Jul','Aug','Sep','Oct'], partial:[0,0,0,0,0,1],
+  desk:[72,148,109,47,19,16], self:[13,9,52,65,54,28], share:[15,6,32,58,74,64],
+  club:{m:['Jul','Aug','Sep','Oct'],v:[17391,41471,33186,28787],partial:[0,0,0,1]},
+  weeks:[20,21,8,1,0,0,16,66,27,21,56,92,63,38,71,16,71,75,128,184,25,32,65,12,6,7,22,0,169,188],
 };
+const NS='http://www.w3.org/2000/svg';
+const el=(t,a={},kids=[])=>{const n=document.createElementNS(NS,t);for(const k in a)n.setAttribute(k,a[k]);kids.forEach(c=>n.append(typeof c==='string'?document.createTextNode(c):c));return n;};
+const svg=(w,h,label)=>{const s=el('svg',{viewBox:`0 0 ${w} ${h}`,role:'img','aria-label':label});return s;};
+const inr=v=>'₹'+v.toLocaleString('en-IN');
 
-const el = (tag, attrs={}, children=[]) => {
-  const n = document.createElementNS('http://www.w3.org/2000/svg', tag);
-  for (const [k,v] of Object.entries(attrs)) n.setAttribute(k, v);
-  for (const c of children) n.append(typeof c === 'string' ? document.createTextNode(c) : c);
-  return n;
-};
-const svgRoot = (w,h,title,desc) => {
-  const s = el('svg',{viewBox:`0 0 ${w} ${h}`,role:'img','aria-labelledby':`t${Math.random().toString(36).slice(2)}`});
-  const t = el('title',{}, [title]); s.setAttribute('aria-labelledby', t.id = 'svgt'+Math.random().toString(36).slice(2));
-  s.append(t, el('desc',{},[desc]));
-  return s;
-};
-const table = (caption, head, rows) => {
-  const t = document.createElement('table'); t.className='sr';
-  t.innerHTML = `<caption>${caption}</caption><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>`;
-  return t;
-};
+// Funnel
+(()=>{const host=document.getElementById('funnel');const W=600,row=46,H=row*DATA.funnel.length+8,max=DATA.funnel[0].n;
+  const s=svg(W,H,'Of 134 people sent the booking flow, 118 picked a date, 105 picked a slot and 93 booked: 69 percent.');
+  DATA.funnel.forEach((f,i)=>{const y=i*row+4,w=(f.n/max)*(W-210),last=i===DATA.funnel.length-1;
+    s.append(el('rect',{x:0,y,width:w,height:30,rx:5,fill:last?'var(--chat)':'var(--ink)',opacity:last?1:(.9-i*.17)}));
+    s.append(el('text',{x:w+12,y:y+13,style:'fill:var(--ink);font-size:15px;font-weight:500'},[String(f.n)]));
+    s.append(el('text',{x:w+12,y:y+29},[f.l+(last?' · 69%':'')]));});
+  host.prepend(s);})();
 
-/* 01 Stacked bars + share line */
-(function shift(){
-  const W=1200,H=420,L=56,R=56,T=36,B=56, iw=W-L-R, ih=H-T-B;
-  const n=DATA.months.length, totals=DATA.desk.map((d,i)=>d+DATA.self[i]), max=Math.max(...totals)*1.1;
-  const bw=iw/n*0.52, step=iw/n;
-  const s=svgRoot(W,H,'Desk versus self-serve bookings per month','Stacked bars of confirmed bookings by month, May to October 2026, desk entries under self-serve, with a line for the self-serve share rising from 15% to 74%.');
-  const defs=el('defs',{},[el('pattern',{id:'hatch',width:'8',height:'8',patternUnits:'userSpaceOnUse',patternTransform:'rotate(45)'},[el('rect',{width:'8',height:'8',fill:'var(--accent)'}),el('rect',{width:'4',height:'8',fill:'var(--bg)',opacity:'.45'})])]);
-  s.append(defs);
-  [0,50,100,150].forEach(v=>{ const y=T+ih-(v/max)*ih; s.append(el('line',{x1:L,x2:W-R,y1:y,y2:y,stroke:'var(--line-soft)'})); s.append(el('text',{x:L-10,y:y+4,'text-anchor':'end'},[String(v)])); });
+// Desk vs self-serve
+(()=>{const host=document.getElementById('shift');const W=1180,H=330,L=40,R=50,T=28,B=34,iw=W-L-R,ih=H-T-B;
+  const tot=DATA.desk.map((d,i)=>d+DATA.self[i]),max=170,step=iw/6,bw=step*.46;
+  const s=svg(W,H,'Bookings per month entered at the desk versus booked by customers, May to mid-October 2026; self-serve share rose from 15 to 74 percent.');
+  s.append(el('defs',{},[el('pattern',{id:'hx',width:'7',height:'7',patternUnits:'userSpaceOnUse',patternTransform:'rotate(45)'},[el('rect',{width:'7',height:'7',fill:'var(--ember)'}),el('rect',{width:'3',height:'7',fill:'var(--paper)',opacity:'.5'})])]));
+  [0,50,100,150].forEach(v=>{const y=T+ih-v/max*ih;s.append(el('line',{x1:L,x2:W-R,y1:y,y2:y,stroke:'var(--rule)'}));s.append(el('text',{x:L-8,y:y+4,'text-anchor':'end'},[String(v)]));});
   const pts=[];
-  DATA.months.forEach((m,i)=>{
-    const x=L+step*i+(step-bw)/2;
-    const hd=DATA.desk[i]/max*ih, hs=DATA.self[i]/max*ih;
-    const g=el('g',{class:'bar'});
-    g.append(el('rect',{x,y:T+ih-hd,width:bw,height:hd,fill:'var(--desk)',rx:3}));
-    g.append(el('rect',{x,y:T+ih-hd-hs,width:bw,height:hs,fill:DATA.partial[i]?'url(#hatch)':'var(--accent)',rx:3}));
-    s.append(g);
-    s.append(el('text',{x:x+bw/2,y:H-B+22,'text-anchor':'middle'},[m+(DATA.partial[i]?' 1–14':'')]));
-    s.append(el('text',{x:x+bw/2,y:T+ih-hd-hs-8,'text-anchor':'middle',fill:'var(--text-2)'},[String(totals[i])]));
-    pts.push([x+bw/2, T+ih-(DATA.share[i]/100)*ih]);
-  });
-  // share line on a 0–100% scale, right axis
-  s.append(el('polyline',{points:pts.map(p=>p.join(',')).join(' '),fill:'none',stroke:'var(--brand-whatsapp)','stroke-width':'2.5','stroke-linejoin':'round'}));
-  pts.forEach((p,i)=>{ s.append(el('circle',{cx:p[0],cy:p[1],r:'4.5',fill:'var(--brand-whatsapp)',stroke:'var(--bg)','stroke-width':'2'})); s.append(el('text',{x:p[0]+10,y:p[1]-10,fill:'var(--brand-whatsapp)','font-weight':'600'},[DATA.share[i]+'%'])); });
-  [0,50,100].forEach(v=>{ const y=T+ih-(v/100)*ih; s.append(el('text',{x:W-R+10,y:y+4,fill:'var(--brand-whatsapp)'},[v+'%'])); });
-  DATA.flags.forEach(f=>{ const x=L+step*f.m+(step-bw)/2-6; s.append(el('line',{x1:x,x2:x,y1:T-6,y2:T+ih,stroke:'var(--line-strong)','stroke-dasharray':'3 4'})); s.append(el('text',{x:x+6,y:T-12,fill:'var(--text-dim)'},[f.label])); });
-  const host=document.getElementById('chart-shift'); host.classList.add('pre'); host.append(s);
-  host.append(table('Bookings per month by channel',['Month','Desk','Self-serve','Self-serve share'],DATA.months.map((m,i)=>[m,DATA.desk[i],DATA.self[i],DATA.share[i]+'%'])));
-})();
+  DATA.months.forEach((m,i)=>{const x=L+step*i+(step-bw)/2,hd=DATA.desk[i]/max*ih,hs=DATA.self[i]/max*ih;
+    s.append(el('rect',{x,y:T+ih-hd,width:bw,height:hd,fill:'var(--desk)'}));
+    s.append(el('rect',{x,y:T+ih-hd-hs,width:bw,height:hs,fill:DATA.partial[i]?'url(#hx)':'var(--ember)'}));
+    s.append(el('text',{x:x+bw/2,y:H-B+20,'text-anchor':'middle'},[m+(DATA.partial[i]?' (½)':'')]));
+    const sy=T+ih-hd-hs; pts.push([x+bw/2,sy]);
+    s.append(el('text',{x:x+bw/2,y:sy-9,'text-anchor':'middle',style:`fill:${DATA.share[i]>=50?'var(--ember-ink)':'var(--ink-2)'};font-weight:500`},[DATA.share[i]+'% self']));});
+  host.prepend(s);})();
 
-/* 02 Funnel */
-(function funnel(){
-  const W=520,H=250,rowH=50,L=0,maxN=DATA.funnel[0].n;
-  const s=svgRoot(W,H,'WhatsApp flow funnel','Of 134 people who opened the flow, 118 picked a date, 105 picked a slot and 93 confirmed: 69 percent.');
-  DATA.funnel.forEach((f,i)=>{
-    const y=i*rowH+10, w=(f.n/maxN)*(W-150), last=i===DATA.funnel.length-1;
-    const g=el('g',{class:'bar'});
-    g.append(el('rect',{x:L,y,width:w,height:30,rx:6,fill:last?'var(--green)':'var(--accent)',opacity:last?1:1-(i*0.18)}));
-    s.append(g);
-    s.append(el('text',{x:w+12,y:y+14,fill:'var(--text)','font-weight':'600','font-size':'15'},[String(f.n)]));
-    s.append(el('text',{x:w+12,y:y+29,fill:'var(--text-muted)'},[f.l]));
-  });
-  s.append(el('text',{x:0,y:H-8,fill:'var(--green)','font-weight':'600','font-size':'15'},['69% finish']));
-  const host=document.getElementById('chart-funnel'); host.classList.add('pre'); host.append(s);
-  host.append(table('Flow funnel, distinct people',['Step','People'],DATA.funnel.map(f=>[f.l,f.n])));
-})();
+// Club revenue
+(()=>{const host=document.getElementById('club-rev');const W=560,H=260,L=8,T=28,B=30,iw=W-L*2,ih=H-T-B,max=45000,step=iw/4,bw=step*.56;
+  const s=svg(W,H,'Juniors money collected: July 17,391 rupees, August 41,471, September 33,186, first half of October 28,787.');
+  s.append(el('line',{x1:L,x2:W-L,y1:T+ih,y2:T+ih,stroke:'var(--ink)'}));
+  DATA.club.m.forEach((m,i)=>{const v=DATA.club.v[i],x=L+step*i+(step-bw)/2,h=v/max*ih;
+    s.append(el('rect',{x,y:T+ih-h,width:bw,height:h,rx:3,fill:DATA.club.partial[i]?'var(--ember-wash)':'var(--ember)',stroke:DATA.club.partial[i]?'var(--ember)':'none','stroke-dasharray':DATA.club.partial[i]?'4 3':'none'}));
+    s.append(el('text',{x:x+bw/2,y:T+ih-h-8,'text-anchor':'middle',style:'fill:var(--ink);font-weight:500'},[inr(v)]));
+    s.append(el('text',{x:x+bw/2,y:H-B+20,'text-anchor':'middle'},[m+(DATA.club.partial[i]?' (½)':'')]));});
+  host.prepend(s);})();
 
-/* 03 Hours */
-(function hours(){
-  const W=1200,H=320,L=40,R=20,T=30,B=46,iw=W-L-R,ih=H-T-B;
-  const max=Math.max(...DATA.hours)*1.15, step=iw/24, bw=step*0.62;
-  const total=DATA.hours.reduce((a,b)=>a+b,0);
-  const night=DATA.hours.filter((_,h)=>h>=DATA.closed.from||h<DATA.closed.to).reduce((a,b)=>a+b,0);
-  const pct=Math.round(night/total*100);
-  const s=svgRoot(W,H,'Self-serve bookings by hour of day','Bar chart of when self-serve bookings were made, peaking between 3 PM and 8 PM; '+pct+' percent were made between 10 PM and 7 AM when the venue is closed.');
-  // closed bands
-  const band=(h0,h1)=>el('rect',{x:L+step*h0,y:T,width:step*(h1-h0),height:ih,fill:'var(--fill-2)',rx:4});
-  s.append(band(DATA.closed.from,24)); s.append(band(0,DATA.closed.to));
-  s.append(el('text',{x:L+10,y:T+18,fill:'var(--text-dim)'},['Venue closed · 10 PM – 7 AM · '+pct+'% of bookings']));
-  [6,12,18].forEach(h=>s.append(el('line',{x1:L+step*h,x2:L+step*h,y1:T,y2:T+ih,stroke:'var(--line-soft)'})));
-  DATA.hours.forEach((v,h)=>{
-    const x=L+step*h+(step-bw)/2, hh=v/max*ih;
-    const peak=h>=15&&h<=20, closed=h>=DATA.closed.from||h<DATA.closed.to;
-    const g=el('g',{class:'bar'});
-    g.append(el('rect',{x,y:T+ih-hh,width:bw,height:hh,rx:3,fill:peak?'var(--accent)':closed?'var(--accent-text)':'var(--desk)'}));
-    s.append(g);
-    if(v>=14) s.append(el('text',{x:x+bw/2,y:T+ih-hh-7,'text-anchor':'middle',fill:'var(--text-2)'},[String(v)]));
-    if(h%3===0) s.append(el('text',{x:x+bw/2,y:H-B+22,'text-anchor':'middle'},[h===0?'12 AM':h<12?h+' AM':h===12?'12 PM':(h-12)+' PM']));
-  });
-  s.append(el('line',{x1:L,x2:W-R,y1:T+ih,y2:T+ih,stroke:'var(--line-strong)'}));
-  const host=document.getElementById('chart-hours'); host.classList.add('pre'); host.append(s);
-  host.append(table('Self-serve bookings by hour made (IST)',['Hour','Bookings'],DATA.hours.map((v,h)=>[h+':00',v])));
-})();
+// Commits per week
+(()=>{const host=document.getElementById('commits');const W=1180,H=190,L=4,T=14,B=26,iw=W-L*2,ih=H-T-B,n=DATA.weeks.length,step=iw/n,bw=step*.62,max=200;
+  const s=svg(W,H,'Commits per week from late March to mid October 2026, peaking at 184 and 188.');
+  DATA.weeks.forEach((v,i)=>{const h=Math.max(1.5,v/max*ih);s.append(el('rect',{x:L+step*i+(step-bw)/2,y:T+ih-h,width:bw,height:h,rx:2,fill:v>=120?'var(--ember)':'var(--desk)'}));});
+  s.append(el('line',{x1:L,x2:W-L,y1:T+ih,y2:T+ih,stroke:'var(--ink)'}));
+  [['Apr',1],['May',6],['Jun',10],['Jul',14],['Aug',19],['Sep',23],['Oct',27]].forEach(([m,w])=>s.append(el('text',{x:L+step*w,y:H-6},[m])));
+  host.prepend(s);})();
 
-/* 04 Timeline + weekly commits */
-(function timeline(){
-  const W=1200,H=230,L=16,R=16,T=70,B=40,iw=W-L-R,ih=H-T-B;
-  const n=DATA.weeks.length, step=iw/n, bw=step*0.6, max=Math.max(...DATA.weeks);
-  const s=svgRoot(W,H,'Weekly commits with milestones','Commits per week from late March to mid October 2026, with markers for the first live booking, the WhatsApp Flow launch, website bookings and the October outage.');
-  DATA.weeks.forEach((v,i)=>{ const x=L+step*i+(step-bw)/2, hh=Math.max(2,v/max*ih); const g=el('g',{class:'bar'}); g.append(el('rect',{x,y:T+ih-hh,width:bw,height:hh,rx:2,fill:'var(--accent)',opacity:'.85'})); s.append(g); });
-  s.append(el('line',{x1:L,x2:W-R,y1:T+ih,y2:T+ih,stroke:'var(--line-strong)'}));
-  const months=[['Apr',1],['May',6],['Jun',10],['Jul',14],['Aug',19],['Sep',23],['Oct',27]];
-  months.forEach(([m,w])=>s.append(el('text',{x:L+step*w,y:H-B+24},[m])));
-  DATA.marks.forEach((mk,i)=>{ const x=L+step*mk.w+step/2; const up=i%2===0?0:18;
-    s.append(el('line',{x1:x,x2:x,y1:T-28+up,y2:T+ih,stroke:'var(--line-strong)','stroke-dasharray':'3 4'}));
-    s.append(el('circle',{cx:x,cy:T-28+up,r:'4',fill:mk.label==='Outage'?'var(--red)':'var(--text)'}));
-    s.append(el('text',{x:x+9,y:T-24+up,fill:'var(--text)','font-weight':'600'},[mk.label]));
-    s.append(el('text',{x:x+9,y:T-10+up,fill:'var(--text-dim)'},[mk.d]));
-  });
-  const host=document.getElementById('chart-timeline'); host.classList.add('pre'); host.append(s);
-  host.append(table('Commits per ISO week, 2026',['Week','Commits'],DATA.weeks.map((v,i)=>[13+i,v])));
-})();
-
-/* ── Reveal once, count once ─────────────────────────────────── */
-const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const io = new IntersectionObserver(es=>es.forEach(e=>{ if(!e.isIntersecting) return; e.target.classList.remove('pre'); io.unobserve(e.target); }),{threshold:.25});
-document.querySelectorAll('.pre').forEach(x=>io.observe(x));
-const fmt=(v,d)=>v.toLocaleString('en-IN',{minimumFractionDigits:d,maximumFractionDigits:d});
-const countIo = new IntersectionObserver(es=>es.forEach(e=>{
-  if(!e.isIntersecting) return; countIo.unobserve(e.target);
-  e.target.querySelectorAll('[data-count]').forEach(n=>{
-    const to=+n.dataset.count, d=+(n.dataset.decimals||0), pre=n.dataset.prefix||'', suf=n.dataset.suffix||'';
-    if(reduce){ n.textContent=pre+fmt(to,d)+suf; return; }
-    const t0=performance.now(); const tick=now=>{ const p=Math.min(1,(now-t0)/600), k=1-Math.pow(1-p,3); n.textContent=pre+fmt(to*k,d)+suf; if(p<1) requestAnimationFrame(tick); }; requestAnimationFrame(tick);
-  });
-}),{threshold:.4});
-countIo.observe(document.getElementById('stats'));
-
-/* ── Theme ───────────────────────────────────────────────────── */
-const root=document.documentElement, KEY='p831-theme';
-function applyTheme(v){ if(v==='auto') root.removeAttribute('data-theme'); else root.setAttribute('data-theme',v); document.querySelectorAll('[data-theme-set]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.themeSet===v))); try{localStorage.setItem(KEY,v)}catch{} }
-const forced=new URLSearchParams(location.search).get('theme');
-try{ applyTheme(forced||localStorage.getItem(KEY)||'auto'); }catch{ applyTheme(forced||'auto'); }
-document.querySelectorAll('[data-theme-set]').forEach(b=>b.addEventListener('click',()=>applyTheme(b.dataset.themeSet)));
+// Theme toggle
+(()=>{const root=document.documentElement,K='p831cs-theme';
+  const set=v=>{v==='auto'?root.removeAttribute('data-theme'):root.setAttribute('data-theme',v);document.querySelectorAll('[data-t]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.t===v)));try{localStorage.setItem(K,v)}catch(e){}};
+  let v='auto';const q=new URLSearchParams(location.search).get('theme');try{v=q||localStorage.getItem(K)||'auto'}catch(e){v=q||'auto'}set(v);
+  document.querySelectorAll('[data-t]').forEach(b=>b.addEventListener('click',()=>set(b.dataset.t)));})();
 </script>
 </body>
 </html>
