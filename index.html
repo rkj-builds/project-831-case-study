@@ -156,7 +156,8 @@ td{color:var(--ink-2)}
 .seq div.hot:before{background:var(--ember);border-color:var(--ember)}
 .seq b{font:600 15px/1.2 var(--fd)}
 .seq span{font-size:13.5px;color:var(--ink-3);line-height:1.4}
-@media (max-width:640px){.seq{grid-template-columns:1fr 1fr;row-gap:22px}}
+.seq.five{grid-template-columns:repeat(5,1fr)}
+@media (max-width:640px){.seq{grid-template-columns:1fr 1fr;row-gap:22px}.seq.five{grid-template-columns:1fr 1fr}}
 
 /* Split bar */
 .split{display:grid;gap:10px}
@@ -191,7 +192,7 @@ footer b{color:var(--ink);font:700 17px var(--fd)}
 <header class="top">
   <a class="mark" href="#top"><span>831</span> Project 831</a>
   <nav aria-label="Sections">
-    <a href="#booking">Booking</a><a href="#meta">Meta</a><a href="#desk">The desk</a><a href="#club">Off-Screen Club</a><a href="#apis">APIs</a><a href="#voice">Voice</a><a href="#build">How it was built</a>
+    <a href="#booking">Booking</a><a href="#meta">Meta</a><a href="#payments">Payments</a><a href="#desk">The desk</a><a href="#club">Off-Screen Club</a><a href="#apis">APIs</a><a href="#voice">Voice</a><a href="#build">How it was built</a>
   </nav>
   <div class="theme" role="group" aria-label="Theme">
     <button type="button" data-t="light" aria-pressed="false">Light</button>
@@ -280,6 +281,58 @@ footer b{color:var(--ink);font:700 17px var(--fd)}
       <div class="frame"><img src="img/broadcasts.jpg" alt="Broadcasts screen: choose an approved Meta template by category, add context, select eligible recipients, live preview on the right." loading="lazy" width="1600" height="1000"></div>
       <figcaption><span class="mock">Mock data</span><b>Broadcasts.</b> Campaigns go out only through approved templates, and only to people whose consent covers that category.</figcaption>
     </figure>
+  </div>
+</section>
+
+<!-- ───────── Payments ───────── -->
+<section id="payments">
+  <div class="wide stack">
+    <div class="head col" style="margin-inline:0">
+      <p class="tag"><b>Payments</b> · Razorpay, inside WhatsApp and on the web</p>
+      <h2>The data said: take the money first.</h2>
+      <p>Booking was free, so skipping it was free too. Bookings with nothing paid kept getting cancelled, and some people just didn't turn up. So the engine learned to ask for money before it holds a court.</p>
+    </div>
+
+    <div class="two">
+      <figure class="chart" id="paid-vs-unpaid"><figcaption class="note">Self-serve court bookings, May to mid-October 2026. Cancellations by the venue (rain, duplicates) excluded from the money line.</figcaption></figure>
+      <div class="stats" style="margin-top:0;grid-template-columns:1fr 1fr">
+        <div class="stat"><b class="mono">6×</b><span>more cancellations when nothing is paid up front</span></div>
+        <div class="stat"><b class="mono">0</b><span>no-shows on a prepaid booking</span></div>
+        <div class="stat"><b class="mono">₹23,250</b><span>lost to customer cancellations and no-shows on unpaid bookings</span></div>
+        <div class="stat"><b class="mono">≈₹21,600</b><span>of that recoverable at the prepaid cancellation rate</span></div>
+      </div>
+    </div>
+
+    <div class="stack" style="gap:18px">
+      <h3>What each finding turned into</h3>
+      <div class="seq five">
+        <div><b>12 May</b><span>Razorpay pay links inside the booking Flow</span></div>
+        <div><b>7 Jun</b><span>Customers who ghost get flagged “pay first”: no money, no booking</span></div>
+        <div><b>14 Jun</b><span>Razorpay checkout for tournaments, then the website, events and the kids' club</span></div>
+        <div><b>9 Aug</b><span>Weekend slots need a 50% part payment</span></div>
+        <div class="hot"><b>29 Aug</b><span>Pay without leaving WhatsApp: a native checkout card in the chat</span></div>
+      </div>
+    </div>
+
+    <div class="pipe" aria-label="How an in-chat payment confirms a booking">
+      <div class="node wa"><span class="tag">WhatsApp</span><h3>Flow confirms</h3><p>The engine decides: pay in full, part pay, or pay at the venue.</p></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="node"><span class="tag">Hold</span><h3>Court held 15 min</h3><p>A pending row blocks the slot in Postgres; nobody else can take it.</p></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="node core"><span class="tag">In-chat pay</span><h3>Review and pay card</h3><p>Meta's checkout, Razorpay underneath. UPI or card without leaving the chat.</p></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="node"><span class="tag">Confirm</span><h3>Checked twice</h3><p>Meta's payment status, re-checked with Razorpay: captured, INR, same amount. Then the booking confirms.</p></div>
+    </div>
+
+    <div class="facts">
+      <div class="fact"><span class="k">Everywhere</span><h3>One payment layer, every product</h3><p>Courts, tournaments, events, Off-Screen Club memberships and enquiries all pay through the same Razorpay orders and links.</p></div>
+      <div class="fact"><span class="k">Part pay</span><h3>The venue sets the rules</h3><p>Deposit percentage, which days need prepayment, and per-customer flags: pay first, or trusted to pay at the venue.</p></div>
+      <div class="fact"><span class="k">No double charge</span><h3>Reference before request</h3><p>The order reference is stamped on the booking before the card is sent. If a send fails silently, the hold stays and no second link goes out.</p></div>
+      <div class="fact"><span class="k">Webhooks</span><h3>Signed, then believed</h3><p>HMAC-SHA256 on the raw body with each venue's own secret. Replays are ignored; late money is flagged to the desk, never lost.</p></div>
+      <div class="fact"><span class="k">Secrets</span><h3>Keys the dashboard can't read</h3><p>Each venue's Razorpay keys are encrypted with AES-256-GCM and a rotating keyring. The dashboard can write them, never show them.</p></div>
+      <div class="fact"><span class="k">Second gateway</span><h3>HDFC behind a switch</h3><p>Web checkout can route to HDFC SmartGateway per venue. Built and tested with a ₹1 harness; waiting for launch.</p></div>
+    </div>
+    <p class="callout">Prepaid bookings have never been a no-show.</p>
   </div>
 </section>
 
@@ -457,6 +510,7 @@ const DATA = {
   months:['May','Jun','Jul','Aug','Sep','Oct'], partial:[0,0,0,0,0,1],
   desk:[72,148,109,47,19,16], self:[13,9,52,65,54,28], share:[15,6,32,58,74,64],
   club:{m:['Jul','Aug','Sep','Oct'],v:[17391,41471,33186,28787],partial:[0,0,0,1]},
+  pay:[{l:'Nothing paid up front',n:201,c:90,ns:10},{l:'Paid in full or part',n:88,c:6,ns:0}],
   weeks:[20,21,8,1,0,0,16,66,27,21,56,92,63,38,71,16,71,75,128,184,25,32,65,12,6,7,22,0,169,188],
 };
 const NS='http://www.w3.org/2000/svg';
@@ -496,6 +550,17 @@ const inr=v=>'₹'+v.toLocaleString('en-IN');
     s.append(el('rect',{x,y:T+ih-h,width:bw,height:h,rx:3,fill:DATA.club.partial[i]?'var(--ember-wash)':'var(--ember)',stroke:DATA.club.partial[i]?'var(--ember)':'none','stroke-dasharray':DATA.club.partial[i]?'4 3':'none'}));
     s.append(el('text',{x:x+bw/2,y:T+ih-h-8,'text-anchor':'middle',style:'fill:var(--ink);font-weight:500'},[inr(v)]));
     s.append(el('text',{x:x+bw/2,y:H-B+20,'text-anchor':'middle'},[m+(DATA.club.partial[i]?' (½)':'')]));});
+  host.prepend(s);})();
+
+// Paid vs unpaid
+(()=>{const host=document.getElementById('paid-vs-unpaid');const W=560,H=230,L=0,row=92;
+  const s=svg(W,H,'Self-serve bookings with nothing paid: 90 of 201 cancelled, 45 percent, with 10 no-shows. Paid bookings: 6 of 88 cancelled, 7 percent, no no-shows.');
+  DATA.pay.forEach((p,i)=>{const y=i*row+8,pct=Math.round(p.c/p.n*100),bw=W-L,w=pct/50*bw*.82;
+    s.append(el('text',{x:L,y:y+12,style:'fill:var(--ink);font-size:14px;font-weight:500'},[p.l]));
+    s.append(el('rect',{x:L,y:y+22,width:bw*.82,height:34,rx:5,fill:'var(--rule)',opacity:.5}));
+    s.append(el('rect',{x:L,y:y+22,width:Math.max(4,w),height:34,rx:5,fill:i===0?'var(--ink)':'var(--chat)'}));
+    s.append(el('text',{x:Math.max(4,w)+10,y:y+45,style:'fill:var(--ink);font-size:20px;font-weight:600'},[pct+'%']));
+    s.append(el('text',{x:L,y:y+76},[`${p.c} of ${p.n} cancelled · ${p.ns} no-show${p.ns===1?'':'s'}`]));});
   host.prepend(s);})();
 
 // Commits per week
