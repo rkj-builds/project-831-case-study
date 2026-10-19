@@ -12,7 +12,7 @@
 /* Layout: one 680px reading column; figures break out to 1180px. Phones sit in a horizontal journey rail.
    Colour comes from the venue's own world: court-line chalk paper, the 831 logo's red-orange, WhatsApp green only on chat things. */
 :root{
-  --paper:#f2f3ef;  --sheet:#ffffff; --ink:#14181a; --ink-2:#3d4549; --ink-3:#6b7479;
+  --paper:#f2f3ef; --band:#eaece6;  --sheet:#ffffff; --ink:#14181a; --ink-2:#3d4549; --ink-3:#5f686d;
   --rule:#d9ddd6;   --rule-2:#e8eae5;
   --ember:#c8461c;  --ember-ink:#a83a15; --ember-wash:#f7e3da;
   --chat:#1f9d55;   --chat-wash:#dff1e6;
@@ -25,7 +25,7 @@
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --paper:#0f1312; --sheet:#171c1b; --ink:#eef1ec; --ink-2:#c3cac5; --ink-3:#8e9893;
+  --paper:#0f1312; --band:#151a18; --sheet:#171c1b; --ink:#eef1ec; --ink-2:#c3cac5; --ink-3:#8e9893;
   --rule:#2a312f; --rule-2:#202625;
   --ember:#ec6a3d; --ember-ink:#f28a63; --ember-wash:#33201a;
   --chat:#3ec777; --chat-wash:#16291f;
@@ -33,7 +33,7 @@
   --shadow:0 1px 0 rgba(0,0,0,.3), 0 18px 40px -18px rgba(0,0,0,.7);
   color-scheme:dark; } }
 :root[data-theme="dark"]{
-  --paper:#0f1312; --sheet:#171c1b; --ink:#eef1ec; --ink-2:#c3cac5; --ink-3:#8e9893;
+  --paper:#0f1312; --band:#151a18; --sheet:#171c1b; --ink:#eef1ec; --ink-2:#c3cac5; --ink-3:#8e9893;
   --rule:#2a312f; --rule-2:#202625;
   --ember:#ec6a3d; --ember-ink:#f28a63; --ember-wash:#33201a;
   --chat:#3ec777; --chat-wash:#16291f;
@@ -185,6 +185,34 @@ footer b{color:var(--ink);font:700 17px var(--fd)}
   .rise:nth-child(2){animation-delay:.06s}.rise:nth-child(3){animation-delay:.12s}.rise:nth-child(4){animation-delay:.18s}
   @keyframes rise{from{transform:translateY(8px);opacity:.001}to{transform:none;opacity:1}}
 }
+
+/* Every hat */
+.partners{display:flex;flex-wrap:wrap;gap:10px}
+.partners .p{background:#fff;border:1px solid var(--rule);border-radius:10px;height:56px;padding:0 18px;display:flex;align-items:center;gap:10px}
+.partners .p img{height:24px;width:auto;display:block}
+.partners .p small{font:500 11px/1.2 var(--fm);color:#6b7479;letter-spacing:.02em}
+.partners .p .wm{font:800 17px/1 var(--fd);letter-spacing:-.02em;color:#14181a}
+.poster{border-radius:14px;overflow:hidden;border:1px solid var(--rule);box-shadow:var(--shadow)}
+.poster img{display:block;width:100%;height:auto}
+/* Security: a request's path through the gates, then the controls as badges */
+.gates{display:grid;grid-template-columns:1fr 40px 1fr 40px 1fr 40px 1.15fr;align-items:stretch}
+.gates .node{gap:6px}
+.gates .node svg,.badge svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;color:var(--ink-2)}
+.gates .node.core svg{color:var(--ember-ink)}
+.gate{display:grid;place-items:center;position:relative}
+.gate:before{content:"";position:absolute;left:0;right:0;top:50%;border-top:1px dashed var(--ink-3)}
+.gate i{position:relative;width:22px;height:22px;border-radius:50%;background:var(--paper);border:1.5px solid var(--chat);display:grid;place-items:center;font:600 12px/1 var(--fm);color:var(--chat);font-style:normal}
+@media (max-width:900px){.gates{grid-template-columns:1fr}.gate{height:34px}.gate:before{left:50%;right:auto;top:0;bottom:0;border-top:0;border-left:1px dashed var(--ink-3)}}
+.badges{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.badge{border:1px solid var(--rule);border-radius:12px;background:var(--sheet);padding:16px 18px;display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-content:start;min-width:0}
+.badge svg{grid-row:span 2;margin-top:2px;color:var(--ember-ink)}
+.badge h3{font-size:16px}
+.badge p{font-size:14px;line-height:1.5}
+@media (max-width:860px){.badges{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.badges{grid-template-columns:1fr}}
+/* Subtle alternating section tints */
+main > section:nth-of-type(even){background:var(--band);box-shadow:0 0 0 100vmax var(--band);clip-path:inset(0 -100vmax);--paper:var(--band)}
+main > section{border-top:0}
 </style>
 </head>
 <body>
@@ -192,7 +220,7 @@ footer b{color:var(--ink);font:700 17px var(--fd)}
 <header class="top">
   <a class="mark" href="#top"><span>831</span> Project 831</a>
   <nav aria-label="Sections">
-    <a href="#booking">Booking</a><a href="#meta">Meta</a><a href="#payments">Payments</a><a href="#desk">The desk</a><a href="#club">Off-Screen Club</a><a href="#apis">APIs</a><a href="#voice">Voice</a><a href="#coss">coss ui</a><a href="#build">How it was built</a>
+    <a href="#hats">Every hat</a><a href="#booking">Booking</a><a href="#meta">Meta</a><a href="#payments">Payments</a><a href="#desk">The desk</a><a href="#club">Off-Screen Club</a><a href="#apis">APIs</a><a href="#security">Security</a><a href="#voice">Voice</a><a href="#coss">coss ui</a><a href="#build">How it was built</a>
   </nav>
   <div class="theme" role="group" aria-label="Theme">
     <button type="button" data-t="light" aria-pressed="false">Light</button>
@@ -207,15 +235,64 @@ footer b{color:var(--ink);font:700 17px var(--fd)}
 <section class="hero">
   <div class="wide">
     <div class="intro">
-      <p class="tag rise">Side project · Jamshedpur, India · March – October 2026</p>
+      <p class="tag rise">Side project · Co-founder &amp; design engineer · Jamshedpur, India · 2026</p>
       <h1 class="rise">A venue that books itself <em>inside WhatsApp.</em></h1>
-      <p class="lede rise">Project 831 is a two-court pickleball venue. On the side, I designed and built the system it runs on: booking inside WhatsApp, a desk dashboard, and a kids' programme that handles its own renewals and splits its money with the coach.</p>
+      <p class="lede rise">Project 831 is a two-court pickleball venue I co-founded and run. I designed and built the system it runs on, from booking inside WhatsApp to a desk dashboard and a kids' programme that renews itself. I also wear the other hats: the money, partnerships, brand, marketing and the edits.</p>
     </div>
     <div class="stats">
       <div class="stat"><b class="mono">₹5.6L</b><span>taken through the system since May</span></div>
       <div class="stat"><b class="mono">15→74%</b><span>court bookings made without the desk, May → Sep</span></div>
       <div class="stat"><b class="mono">69%</b><span>of people sent the booking flow went on to book</span></div>
       <div class="stat"><b class="mono">1,509</b><span>commits in 200 days, most of them mine</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── Every hat ───────── -->
+<section id="hats">
+  <div class="wide stack">
+    <div class="head col" style="margin-inline:0">
+      <p class="tag"><b>Every hat</b> · co-founder</p>
+      <h2>The software is one job of many.</h2>
+      <p>I run the money, negotiate the partnerships, build the brand, market it and cut the videos. Each one shaped what the product needed to do.</p>
+    </div>
+    <div class="facts">
+      <div class="fact"><span class="k">Money &amp; deals</span><h3>Every rupee and every negotiation</h3><p>Pricing, settlements and the deals behind them, from the coach's revenue split to brand partnerships.</p></div>
+      <div class="fact"><span class="k">Partnerships</span><h3>Four brands for one tournament</h3><p>I pitched and closed the 831 City Open's partners, with a deck built for each brand.</p></div>
+      <div class="fact"><span class="k">Brand</span><h3>831 reads as "I love you"</h3><p>The pincode is the name. A heart hidden in the 3, a terracotta palette and Dalmo, our mascot, for partner creatives.</p></div>
+      <div class="fact"><span class="k">Growth</span><h3>Found on Google, run from code</h3><p>SEO with structured data on project831.in, a Google review funnel, and Meta and Google ads I run myself through the API.</p></div>
+      <div class="fact"><span class="k">Social</span><h3>Instagram, edited by me</h3><p>Close to 450 followers, and I edit every reel.</p></div>
+      <div class="fact"><span class="k">Build</span><h3>The engine underneath</h3><p>The booking system, the website and the dashboards: the rest of this page.</p></div>
+    </div>
+
+    <div class="two">
+      <figure class="poster"><img src="img/city-open-poster.jpg" alt="Poster for the 831 City Open, the Jamshedpur Pickleball Championship, 4 and 5 July 2026 in Sonari, with a ₹30,000+ prize pool." width="750" height="655" loading="lazy"></figure>
+      <div class="stack" style="gap:18px;align-content:start">
+        <p class="tag"><b>831 City Open</b> · 4–5 July 2026</p>
+        <h3 style="font:700 clamp(24px,3vw,32px)/1.1 var(--fd);letter-spacing:-.02em">A city championship, run on our own system.</h3>
+        <div class="stats" style="margin-top:0;grid-template-columns:1fr 1fr">
+          <div class="stat"><b class="mono">78</b><span>entries across 5 categories</span></div>
+          <div class="stat"><b class="mono">₹30K+</b><span>prize pool</span></div>
+        </div>
+        <p class="note">Registration, payments, draws and the schedule ran on the same engine as court bookings.</p>
+        <div class="partners" aria-label="Tournament partners">
+          <div class="p"><img src="img/partners/airavat.png" alt="Airavat"><small>Ball</small></div>
+          <div class="p"><img src="img/partners/fastandup.png" alt="Fast&amp;Up"><small>Hydration</small></div>
+          <div class="p"><img src="img/partners/skininspired.png" alt="SkinInspired"><small>Sunscreen</small></div>
+          <div class="p"><span class="wm">KheloMore</span><small>Partner</small></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="two">
+      <figure class="shot">
+        <div class="frame"><img src="img/edit-timeline.jpg" alt="An iMovie timeline for the Off-Screen Club self-defence reel: titles, cuts, a music bed and voice, 1 minute 38 seconds." loading="lazy"></div>
+        <figcaption><b>The edit.</b> An Off-Screen Club self-defence reel in iMovie: titles, cuts, two music beds, 1:38.<!-- REEL LINK: add once Rahul shares it --></figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="frame"><img src="img/fastup-dalmo.jpg" alt="Co-branded creative: Dalmo the elephant mascot holding a Fast&amp;Up bottle courtside, Official Hydration Partner of the 831 City Open." loading="lazy"></div>
+        <figcaption><b>The brand at work.</b> Dalmo for Fast&amp;Up, our hydration partner at the City Open.</figcaption>
+      </figure>
     </div>
   </div>
 </section>
@@ -445,6 +522,84 @@ footer b{color:var(--ink);font:700 17px var(--fd)}
   </div>
 </section>
 
+<!-- ───────── Security ───────── -->
+<section id="security">
+  <div class="wide stack">
+    <div class="head col" style="margin-inline:0">
+      <p class="tag"><b>Security</b> · built in, not added later</p>
+      <h2>Locked down like it holds real money. It does.</h2>
+      <p>Every request proves who it is and which venue it belongs to before it gets near the data. The browser never talks to the database at all.</p>
+    </div>
+
+    <figure class="shot" aria-labelledby="gates-cap">
+      <div class="gates" role="list">
+        <div class="node" role="listitem">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 8h18M8 21h8"/></svg>
+          <span class="tag">1 · Browser</span>
+          <h3>Holds a key it can't read</h3>
+          <p>The session sits in a cookie scripts can't touch. Requests from other sites are refused.</p>
+        </div>
+        <div class="gate" aria-hidden="true"><i>✓</i></div>
+        <div class="node" role="listitem">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
+          <span class="tag">2 · Signed session</span>
+          <h3>Checked on every request</h3>
+          <p>Signed, compared in constant time, and re-checked on the server each time, so sign-out everywhere is instant.</p>
+        </div>
+        <div class="gate" aria-hidden="true"><i>✓</i></div>
+        <div class="node" role="listitem">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21V9l9-6 9 6v12"/><path d="M9 21v-6h6v6"/></svg>
+          <span class="tag">3 · Venue check</span>
+          <h3>One session, one venue</h3>
+          <p>Built for many venues. A session is bound to one, and editing the URL can't cross into another.</p>
+        </div>
+        <div class="gate" aria-hidden="true"><i>✓</i></div>
+        <div class="node core" role="listitem">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>
+          <span class="tag"><b>4 · Database</b></span>
+          <h3>Server only</h3>
+          <p>No table access from the browser, row-level security on, backed up every day.</p>
+        </div>
+      </div>
+      <figcaption id="gates-cap">The path every dashboard request takes. Each check fails closed: if it can't be sure, it says no.</figcaption>
+    </figure>
+
+    <div class="badges">
+      <div class="badge">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+        <h3>End-to-end encrypted booking</h3>
+        <p>The booking form inside WhatsApp is encrypted end to end: RSA-OAEP key exchange, then AES-GCM on every screen.</p>
+      </div>
+      <div class="badge">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17c3-1 4-6 6-6s1 5 3 5 3-3 4-4"/><path d="M4 21h16"/></svg>
+        <h3>Signed webhooks</h3>
+        <p>WhatsApp and payment callbacks must carry a valid signature. A payment that doesn't match its order changes nothing.</p>
+      </div>
+      <div class="badge">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3M15 8l2 2"/></svg>
+        <h3>Secrets encrypted at rest</h3>
+        <p>Each venue's WhatsApp, payment and voice keys are sealed with AES-256-GCM under versioned keys that can be rotated.</p>
+      </div>
+      <div class="badge">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><circle cx="12" cy="12" r="5"/><path d="M12 10v2l1.5 1.5"/></svg>
+        <h3>Limits that fail closed</h3>
+        <p>Sign-in, WhatsApp codes and resets are rate-limited across every server. If the limiter is down, it refuses. It stores hashes, never a phone or IP.</p>
+      </div>
+      <div class="badge">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>
+        <h3>Links instead of accounts</h3>
+        <p>Coaches mark attendance from a signed link plus a PIN. Rotating one secret revokes every link at once.</p>
+      </div>
+      <div class="badge">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l2 2 4-4"/><rect x="4" y="3" width="16" height="18" rx="2"/></svg>
+        <h3>3,100+ tests on every change</h3>
+        <p>They run with the network blocked, so no test can touch production. CI also stops real phone numbers or a venue-boundary slip from merging.</p>
+      </div>
+    </div>
+    <p class="note">Also: a public security contact for responsible disclosure, customer images served through the server so no token reaches a page, and an offline cache that never stores private responses.</p>
+  </div>
+</section>
+
 <!-- ───────── Voice ───────── -->
 <section id="voice">
   <div class="wide stack">
@@ -491,8 +646,8 @@ footer b{color:var(--ink);font:700 17px var(--fd)}
     </div>
     <div class="facts">
       <div class="fact"><span class="k">Live</span><h3><a href="https://rkj-builds.github.io/slot-picker/">rkj-builds.github.io/slot-picker</a></h3><p>Book a court, then watch it land on the desk as held.</p></div>
-      <div class="fact"><span class="k">Code</span><h3><a href="https://github.com/rkj-builds/slot-picker">github.com/rkj-builds/slot-picker</a></h3><p>React 19, TypeScript, Base UI, Tailwind v4. 152 tests with accessibility checks.</p></div>
-      <div class="fact"><span class="k">Try</span><h3>⌘K on the desk</h3><p>Plus the Scenarios button on the booking page: weekend part-pay, pay-first, failed payment, slot taken mid-checkout.</p></div>
+      <div class="fact"><span class="k">Code</span><h3><a href="https://github.com/rkj-builds/slot-picker">github.com/rkj-builds/slot-picker</a></h3><p>React 19, TypeScript, Base UI, Tailwind v4. Headless primitives of my own for slots, recurrence and time zones. 433 tests with accessibility checks.</p></div>
+      <div class="fact"><span class="k">Try</span><h3>The Demo menu</h3><p>Jump to any of 74 states: part payments, a declined card, a slot taken mid-checkout, empty and error states. Then the Primitives page and ⌘K on the desk.</p></div>
     </div>
   </div>
 </section>
@@ -508,7 +663,7 @@ footer b{color:var(--ink);font:700 17px var(--fd)}
     <figure class="chart" id="commits"><figcaption class="note">Commits per week, 28 March – 14 October 2026.</figcaption></figure>
     <div class="facts two">
       <div class="fact"><span class="k">Stack</span><h3>React 19, Vite PWA, Postgres</h3><p>12 serverless functions on Vercel, a separate Next.js marketing site, no component library.</p></div>
-      <div class="fact"><span class="k">Safety</span><h3>Production data is never test data</h3><p>2,700+ tests run offline; a mock mode answers every API call in the browser; a PII scanner blocks real phone numbers in the repo.</p></div>
+      <div class="fact"><span class="k">Safety</span><h3>Production data is never test data</h3><p>3,100+ tests run offline; a mock mode answers every API call in the browser; a PII scanner blocks real phone numbers in the repo.</p></div>
     </div>
   </div>
 </section>
